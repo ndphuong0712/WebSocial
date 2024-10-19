@@ -4,7 +4,7 @@ import {
   followingController,
   unfollowController
 } from '@controllers/follow.controllers'
-import { accessTokenValidator } from '@middlewares/auth.middlewares'
+import { accessTokenValidator, optionalAccessTokenValidator } from '@middlewares/auth.middlewares'
 import { followValidator } from '@middlewares/follow.middlewares'
 import { userIdParamsValidator } from '@middlewares/user.middllewares'
 import { Router } from 'express'
@@ -12,6 +12,7 @@ import { Router } from 'express'
 const followRouter = Router()
 
 //Public
+followRouter.use(optionalAccessTokenValidator)
 followRouter.get('/followings/:userId', userIdParamsValidator, followingController)
 followRouter.get('/followers/:userId', userIdParamsValidator, followerController)
 

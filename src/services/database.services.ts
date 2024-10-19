@@ -12,10 +12,14 @@ class Database {
     this.createIndex()
   }
   async createIndex() {
-    if (!(await this.users.indexExists(['timeVerifyEmail_1']))) {
-      await this.users.createIndex({ timeVerifyEmail: 1 }, { expireAfterSeconds: 190 })
+    if (!(await this.users.indexExists(['timeVerifyEmail_1', 'fullname_text']))) {
+      await Promise.all([
+        this.users.createIndex({ timeVerifyEmail: 1 }, { expireAfterSeconds: 190 }),
+        this.users.createIndex({ fullname: 'text' }, { default_language: 'none' })
+      ])
     }
   }
+
   get users() {
     return this.db.collection<User>('user')
   }

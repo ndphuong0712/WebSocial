@@ -10,4 +10,11 @@ enum Gender {
   Unknown
 }
 
-export { Accountstatus, Gender }
+enum FileType {
+  Image,
+  Video,
+  Audio,
+  All
+}
+
+export { Accountstatus, Gender, FileType }

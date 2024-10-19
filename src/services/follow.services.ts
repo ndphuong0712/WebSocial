@@ -15,7 +15,21 @@ const followService = {
     return database.follows.deleteOne({ followerId: new ObjectId(followerId), followingId: new ObjectId(followingId) })
   },
 
-  getAllFollowings(userId: string) {
+  async getAllFollowingIds(userId: string) {
+    const followingIds = await database.follows
+      .find({ followerId: new ObjectId(userId) }, { projection: { _id: 0, followingId: 1 } })
+      .toArray()
+    return followingIds.map(i => i.followingId)
+  },
+
+  async getAllFollowings({ userId, myId }: { userId: string; myId?: string }) {
+    let isFollowUser: any = true
+    if (!myId) {
+      isFollowUser = false
+    } else if (userId !== myId) {
+      const userIds = await this.getAllFollowingIds(myId)
+      isFollowUser = { $in: ['$userId', userIds] }
+    }
     return database.follows
       .aggregate([
         {
@@ -44,12 +58,27 @@ const followService = {
             avatar: '$user.avatar',
             createdAt: 1
           }
+        },
+        {
+          $addFields: {
+            isFollowUser,
+            isMe: { $eq: [new ObjectId(myId), '$userId'] }
+          }
+        },
+        {
+          $sort: { isMe: -1, isFollowUser: -1 }
         }
       ])
       .toArray()
   },
 
-  getAllFollowers(userId: string) {
+  async getAllFollowers({ userId, myId }: { userId: string; myId?: string }) {
+    let isFollowUser: any = false
+    if (myId) {
+      const userIds = await this.getAllFollowingIds(myId)
+      isFollowUser = { $in: ['$userId', userIds] }
+    }
+    console.log(isFollowUser)
     return database.follows
       .aggregate([
         {
@@ -78,6 +107,15 @@ const followService = {
             avatar: '$user.avatar',
             createdAt: 1
           }
+        },
+        {
+          $addFields: {
+            isFollowUser,
+            isMe: { $eq: [new ObjectId(myId), '$userId'] }
+          }
+        },
+        {
+          $sort: { isMe: -1, isFollowUser: -1 }
         }
       ])
       .toArray()

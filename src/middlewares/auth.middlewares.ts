@@ -1,7 +1,7 @@
 import HTTP_STATUS from '@constants/httpStatus'
 import ErrorWithStatus from '@models/error'
 import validate from '@utils/validate'
-import { Request } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { checkSchema } from 'express-validator'
 import authService from 'src/services/auth.services'
 import database from 'src/services/database.services'
@@ -192,9 +192,11 @@ const accessTokenValidator = validate(
         isString: true,
         custom: {
           options: async (value: string, { req }) => {
-            const token = value.split(' ')[1]
-            const tokenDecode = await authService.verifyAccessToken(token)
-            ;(req as Request).tokenDecode = tokenDecode
+            if (!(req as Request).tokenDecode) {
+              const token = value.split(' ')[1]
+              const tokenDecode = await authService.verifyAccessToken(token)
+              ;(req as Request).tokenDecode = tokenDecode
+            }
           }
         },
         errorMessage: new ErrorWithStatus({ status: HTTP_STATUS.BAD_REQUEST, message: 'Invalid token' })
@@ -204,6 +206,13 @@ const accessTokenValidator = validate(
   )
 )
 
+const optionalAccessTokenValidator = (req: Request, res: Response, next: NextFunction) => {
+  if (req.headers.authorization) {
+    return accessTokenValidator(req, res, next)
+  }
+  next()
+}
+
 export {
   registerValidator,
   verifyEmailValidator,
@@ -211,5 +220,6 @@ export {
   refreshTokenValidator,
   sendMailForgetPasswordValidator,
   resetPasswordValidator,
-  accessTokenValidator
+  accessTokenValidator,
+  optionalAccessTokenValidator
 }

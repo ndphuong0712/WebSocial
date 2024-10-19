@@ -1,4 +1,5 @@
-import { Accountstatus, Gender } from '@constants/enum'
+import { Accountstatus, FileType, Gender } from '@constants/enum'
+import FileAttachmentType from '@models/fileAttachment'
 import { ObjectId } from 'mongodb'
 
 class User {
@@ -11,7 +12,7 @@ class User {
   dateOfBirth: Date | null
   gender: Gender
   biography: string
-  avatar: string
+  avatar: FileAttachmentType
   links: string[]
   createdAt: Date
   updatedAt: Date
@@ -39,7 +40,11 @@ class User {
     this.dateOfBirth = null
     this.gender = Gender.Unknown
     this.biography = ''
-    this.avatar = avartar ?? ''
+    this.avatar = {
+      url: avartar ?? '',
+      id: '',
+      type: FileType.Image
+    }
     this.links = []
     this.createdAt = date
     this.updatedAt = date
@@ -49,5 +54,16 @@ class User {
 
 type registerType = Pick<User, 'username' | 'email' | 'password' | 'fullname'> & { avatar?: string }
 type loginType = Pick<User, 'email' | 'password'>
+type updateUserType = Partial<Pick<User, 'username' | 'fullname' | 'dateOfBirth' | 'gender' | 'biography' | 'links'>>
+type changePasswordType = {
+  userId: string
+  currentPassword: string
+  newPassword: string
+}
+type searchUserType = {
+  search: string
+  follow?: boolean
+  fullname?: string
+}
 
-export { User as default, registerType, loginType }
+export { User as default, registerType, loginType, updateUserType, changePasswordType, searchUserType }

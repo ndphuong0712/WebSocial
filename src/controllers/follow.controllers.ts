@@ -18,13 +18,15 @@ const unfollowController = wrapRequestHandler(async (req: Request, res: Response
 
 const followingController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.params.userId
-  const users = await followService.getAllFollowings(userId)
+  const myId = req.tokenDecode?._id
+  const users = await followService.getAllFollowings({ userId, myId })
   res.json({ message: 'Get followings successfully', data: { users } })
 })
 
 const followerController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.params.userId
-  const users = await followService.getAllFollowers(userId)
+  const myId = req.tokenDecode?._id
+  const users = await followService.getAllFollowers({ userId, myId })
   res.json({ message: 'Get followers successfully', data: { users } })
 })
 
