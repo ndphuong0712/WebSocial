@@ -22,6 +22,13 @@ const followService = {
     return followingIds.map(i => i.followingId)
   },
 
+  async getAllFollowerIds(userId: string) {
+    const followerIds = await database.follows
+      .find({ followingId: new ObjectId(userId) }, { projection: { _id: 0, followerId: 1 } })
+      .toArray()
+    return followerIds.map(i => i.followerId)
+  },
+
   async getAllFollowings({ userId, myId }: { userId: string; myId?: string }) {
     let isFollowUser: any = true
     if (!myId) {
@@ -78,7 +85,6 @@ const followService = {
       const userIds = await this.getAllFollowingIds(myId)
       isFollowUser = { $in: ['$userId', userIds] }
     }
-    console.log(isFollowUser)
     return database.follows
       .aggregate([
         {

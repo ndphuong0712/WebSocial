@@ -1,5 +1,8 @@
 import ENV from '@constants/env'
+import Bookmark from '@models/collections/bookmark.models'
 import Follow from '@models/collections/follow.models'
+import Like from '@models/collections/like.models'
+import Post from '@models/collections/post.models'
 import RefreshToken from '@models/collections/refreshToken.models'
 import User from '@models/collections/user.models'
 import { Db, MongoClient } from 'mongodb'
@@ -30,6 +33,18 @@ class Database {
 
   get follows() {
     return this.db.collection<Follow>('follow')
+  }
+
+  get posts() {
+    return this.db.collection<Post>('post')
+  }
+
+  get likes() {
+    return this.db.collection<Like>('like')
+  }
+
+  get bookmarks() {
+    return this.db.collection<Bookmark>('bookmark')
   }
 }
 const database = new Database()

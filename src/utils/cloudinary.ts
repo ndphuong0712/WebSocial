@@ -7,10 +7,12 @@ cloudinary.config({
   api_secret: ENV.CLOUDINARY_API_SECRET
 })
 
-const uploadFileToCloudinary = async (filePath: string) => {
+const uploadFileToCloudinary = async ({ filePath, isImage = true }: { filePath: string; isImage?: boolean }) => {
+  const formatImage = isImage ? { format: 'jpg', quality: 'auto' } : {}
   const { secure_url, public_id } = await cloudinary.uploader.upload(filePath, {
     folder: 'WebSocial',
-    resource_type: 'auto'
+    resource_type: 'auto',
+    ...formatImage
   })
   return { url: secure_url, id: public_id }
 }

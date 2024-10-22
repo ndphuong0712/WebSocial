@@ -15,7 +15,8 @@ const uploadFile = (type: ('image' | 'video' | 'all')[] = []) => {
   return multer({
     storage: diskStorage({
       destination(req, file, callback) {
-        callback(null, PATH.IMAGES_TMP)
+        if (file.mimetype.startsWith('image')) return callback(null, PATH.IMAGES)
+        callback(null, PATH.VIDEOS)
       },
       filename(req, file, callback) {
         callback(null, Date.now() + file.originalname)

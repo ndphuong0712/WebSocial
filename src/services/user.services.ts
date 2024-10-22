@@ -1,15 +1,14 @@
 import { ObjectId } from 'mongodb'
 import database from './database.services'
 import { changePasswordType, searchUserType, updateUserType } from '@models/collections/user.models'
-import { deleteCloudinaryFile, uploadFileToCloudinary } from '@utils/cloudinary'
-import compressImage from '@utils/compressImage'
-import deleteFile from '@utils/deleteFile'
+import { deleteCloudinaryFile } from '@utils/cloudinary'
 import { FileType } from '@constants/enum'
 import hashPassword from '@utils/hashPassword'
 import ErrorWithStatus from '@models/error'
 import HTTP_STATUS from '@constants/httpStatus'
 import PaginationType from '@models/pagination'
 import followService from './follow.services'
+import mediaService from './media.services'
 
 const userService = {
   async isExistEmail(email: string) {
@@ -42,20 +41,17 @@ const userService = {
   },
 
   async changeAvatar({ userId, file }: { userId: string; file: Express.Multer.File }) {
-    const compressImagePath = await compressImage(file)
-    const { url, id } = await uploadFileToCloudinary(compressImagePath)
-    const [user] = await Promise.all([
-      database.users.findOneAndUpdate(
-        { _id: new ObjectId(userId) },
-        { $set: { avatar: { url, id, type: FileType.Image }, updatedAt: new Date() } },
-        { projection: { avatar: 1, _id: 0 } }
-      ),
-      deleteFile([file.path, compressImagePath])
-    ])
+    const { url, id, type } = await mediaService.handleUploadOneFileToCloudiary(file)
+    const user = await database.users.findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { avatar: { url, id, type: FileType.Image }, updatedAt: new Date() } },
+      { projection: { avatar: 1, _id: 0 } }
+    )
+
     if (user?.avatar.id !== '') {
       await deleteCloudinaryFile(user?.avatar.id as string)
     }
-    return { url, id }
+    return { url, id, type }
   },
 
   async changePassword({ userId, currentPassword, newPassword }: changePasswordType) {

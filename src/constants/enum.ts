@@ -17,4 +17,10 @@ enum FileType {
   All
 }
 
-export { Accountstatus, Gender, FileType }
+enum Audience {
+  Public,
+  Followers,
+  Private
+}
+
+export { Accountstatus, Gender, FileType, Audience }
