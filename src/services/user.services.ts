@@ -6,8 +6,7 @@ import { FileType } from '@constants/enum'
 import hashPassword from '@utils/hashPassword'
 import ErrorWithStatus from '@models/error'
 import HTTP_STATUS from '@constants/httpStatus'
-import PaginationType from '@models/pagination'
-import followService from './follow.services'
+import { PaginationTimeType } from '@models/pagination'
 import mediaService from './media.services'
 
 const userService = {
@@ -115,39 +114,59 @@ const userService = {
     return { ...user, numberFollowers, numberFollowings }
   },
 
-  async searchUser({
-    search,
-    fullname,
-    follow,
-    userId,
-    page,
-    limit
-  }: searchUserType & PaginationType & { userId?: string }) {
-    let followings: ObjectId[]
-    let pagination = page ? [{ $skip: (page - 1) * limit }, { $limit: limit }] : []
-    let $match: { [key: string]: any } =
-      fullname !== undefined ? { $text: { $search: search } } : { username: new RegExp(search, 'i') }
-    let isFollow: any = false
-    if (userId) {
-      followings = await followService.getAllFollowingIds(userId)
-      $match['_id'] = { $ne: new ObjectId(userId) }
-      isFollow = { $cond: [{ $in: ['$_id', followings] }, true, false] }
-      if (follow === true) {
-        $match['_id'].$in = followings
-        isFollow = true
-      } else if (follow === false) {
-        $match['_id'].$not = { $in: followings }
-        isFollow = false
-      }
-    }
-
+  searchUser({ search, fullname, userId, lastTime, limit }: searchUserType & PaginationTimeType & { userId?: string }) {
+    const $match: any = { accountStatus: 1 }
+    fullname !== undefined ? ($match.$text = { $search: search }) : ($match.username = new RegExp(search, 'i'))
+    lastTime !== undefined ? ($match.createdAt = { $gt: lastTime }) : {}
     return database.users
       .aggregate([
-        { $match },
-        ...pagination,
-        { $project: { username: 1, fullname: 1, avatar: 1 } },
-        { $addFields: { isFollow } },
-        { $sort: { isFollow: -1 } }
+        {
+          $match
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            localField: '_id',
+            foreignField: 'followingId',
+            pipeline: [
+              {
+                $match: {
+                  followerId: new ObjectId(userId)
+                }
+              }
+            ],
+            as: 'isFollow'
+          }
+        },
+        {
+          $addFields: {
+            isFollow: {
+              $gt: [
+                {
+                  $size: '$isFollow'
+                },
+                0
+              ]
+            }
+          }
+        },
+        {
+          $project: {
+            username: 1,
+            fullname: 1,
+            avatar: 1,
+            isFollow: 1,
+            createdAt: 1
+          }
+        },
+        {
+          $sort: {
+            createdAt: 1
+          }
+        },
+        {
+          $limit: limit
+        }
       ])
       .toArray()
   }

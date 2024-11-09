@@ -62,7 +62,6 @@ type changePasswordType = {
 }
 type searchUserType = {
   search: string
-  follow?: boolean
   fullname?: string
 }
 

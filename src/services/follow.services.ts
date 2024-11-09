@@ -29,14 +29,7 @@ const followService = {
     return followerIds.map(i => i.followerId)
   },
 
-  async getAllFollowings({ userId, myId }: { userId: string; myId?: string }) {
-    let isFollowUser: any = true
-    if (!myId) {
-      isFollowUser = false
-    } else if (userId !== myId) {
-      const userIds = await this.getAllFollowingIds(myId)
-      isFollowUser = { $in: ['$userId', userIds] }
-    }
+  getAllFollowings({ userId, myId }: { userId: string; myId?: string }) {
     return database.follows
       .aggregate([
         {
@@ -58,33 +51,71 @@ const followService = {
           }
         },
         {
-          $project: {
-            _id: 0,
-            userId: '$user._id',
-            username: '$user.username',
-            avatar: '$user.avatar',
-            createdAt: 1
+          $lookup: {
+            from: 'follow',
+            let: {
+              followingId: '$followingId'
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ['$$followingId', '$followingId']
+                      },
+                      {
+                        $eq: ['$followerId', new ObjectId(myId)]
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'isFollow'
           }
         },
         {
           $addFields: {
-            isFollowUser,
-            isMe: { $eq: [new ObjectId(myId), '$userId'] }
+            userId: '$user._id',
+            username: '$user.username',
+            avatar: '$user.avatar',
+            followAt: '$createdAt',
+            isFollow: {
+              $gt: [
+                {
+                  $size: '$isFollow'
+                },
+                0
+              ]
+            },
+            isMe: {
+              $eq: ['$user._id', new ObjectId(myId)]
+            }
           }
         },
         {
-          $sort: { isMe: -1, isFollowUser: -1 }
+          $project: {
+            _id: 0,
+            userId: 1,
+            username: 1,
+            avatar: 1,
+            followAt: 1,
+            isFollow: 1,
+            isMe: 1
+          }
+        },
+        {
+          $sort: {
+            isMe: -1,
+            isFollow: -1
+          }
         }
       ])
       .toArray()
   },
 
-  async getAllFollowers({ userId, myId }: { userId: string; myId?: string }) {
-    let isFollowUser: any = false
-    if (myId) {
-      const userIds = await this.getAllFollowingIds(myId)
-      isFollowUser = { $in: ['$userId', userIds] }
-    }
+  getAllFollowers({ userId, myId }: { userId: string; myId?: string }) {
     return database.follows
       .aggregate([
         {
@@ -106,22 +137,65 @@ const followService = {
           }
         },
         {
-          $project: {
-            _id: 0,
-            userId: '$user._id',
-            username: '$user.username',
-            avatar: '$user.avatar',
-            createdAt: 1
+          $lookup: {
+            from: 'follow',
+            let: {
+              followingId: '$followerId'
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ['$followerId', new ObjectId(myId)]
+                      },
+                      {
+                        $eq: ['$followingId', '$$followingId']
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'isFollow'
           }
         },
         {
           $addFields: {
-            isFollowUser,
-            isMe: { $eq: [new ObjectId(myId), '$userId'] }
+            userId: '$user._id',
+            username: '$user.username',
+            avatar: '$user.avatar',
+            followAt: '$createdAt',
+            isFollow: {
+              $gt: [
+                {
+                  $size: '$isFollow'
+                },
+                0
+              ]
+            },
+            isMe: {
+              $eq: ['$user._id', new ObjectId(myId)]
+            }
           }
         },
         {
-          $sort: { isMe: -1, isFollowUser: -1 }
+          $project: {
+            _id: 0,
+            userId: 1,
+            username: 1,
+            avatar: 1,
+            followAt: 1,
+            isFollow: 1,
+            isMe: 1
+          }
+        },
+        {
+          $sort: {
+            isMe: -1,
+            isFollow: -1
+          }
         }
       ])
       .toArray()

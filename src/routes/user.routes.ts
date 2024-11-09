@@ -7,6 +7,7 @@ import {
   updateMeController
 } from '@controllers/user.controllers'
 import { accessTokenValidator, optionalAccessTokenValidator } from '@middlewares/auth.middlewares'
+import { paginationTimeValidator } from '@middlewares/pagination.middlewares'
 import { uploadAvatar } from '@middlewares/uploadFile.middlewares'
 import {
   changePasswordValidator,
@@ -23,7 +24,7 @@ userRouter.get('/me', accessTokenValidator, getMeController)
 //Public
 userRouter.use(optionalAccessTokenValidator)
 userRouter.get('/:userId', userIdParamsValidator, getUserController)
-userRouter.get('/', searchUserValidator, searchUserController)
+userRouter.get('/', searchUserValidator, paginationTimeValidator, searchUserController)
 
 //Private
 userRouter.use(accessTokenValidator)

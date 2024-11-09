@@ -48,9 +48,9 @@ const getMeController = wrapRequestHandler(async (req: Request, res: Response, n
 
 const searchUserController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.tokenDecode?._id
-  const { search, fullname, follow } = req.query as any as searchUserType
-  const page = req.query.page as any as number
-  const data = await userService.searchUser({ follow, fullname, userId, search, limit: 10, page })
+  const { search, fullname } = req.query as any as searchUserType
+  const lastTime = req.query.page as Date | undefined
+  const data = await userService.searchUser({ fullname, userId, search, lastTime, limit: 10 })
   res.json({ message: 'Search user successfully', data })
 })
 

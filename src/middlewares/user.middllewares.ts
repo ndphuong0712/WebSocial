@@ -130,22 +130,6 @@ const searchUserValidator = validate(
         isEmpty: true,
         optional: true,
         errorMessage: 'Fullname must be a empty string'
-      },
-      follow: {
-        isBoolean: true,
-        toBoolean: true,
-        errorMessage: 'Follow is boolean',
-        optional: true
-      },
-      page: {
-        isInt: {
-          options: {
-            min: 1
-          }
-        },
-        errorMessage: 'Page must be a number and > 0',
-        toInt: true,
-        optional: true
       }
     },
     ['query']

@@ -3,4 +3,9 @@ type PaginationType = {
   limit: number
 }
 
-export default PaginationType
+type PaginationTimeType = {
+  lastTime?: Date
+  limit: number
+}
+
+export { PaginationType, PaginationTimeType }

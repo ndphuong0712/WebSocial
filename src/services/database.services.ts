@@ -1,5 +1,6 @@
 import ENV from '@constants/env'
 import Bookmark from '@models/collections/bookmark.models'
+import Comment from '@models/collections/comment.models'
 import Follow from '@models/collections/follow.models'
 import Like from '@models/collections/like.models'
 import Post from '@models/collections/post.models'
@@ -45,6 +46,10 @@ class Database {
 
   get bookmarks() {
     return this.db.collection<Bookmark>('bookmark')
+  }
+
+  get comments() {
+    return this.db.collection<Comment>('comment')
   }
 }
 const database = new Database()

@@ -4,6 +4,9 @@ import { Audience } from '@constants/enum'
 import Post, { createPostType, updatePostType } from '@models/collections/post.models'
 import mediaService from './media.services'
 import { deleteCloudinaryFile } from '@utils/cloudinary'
+import ErrorWithStatus from '@models/error'
+import HTTP_STATUS from '@constants/httpStatus'
+import { PaginationTimeType } from '@models/pagination'
 
 const postService = {
   async isPostPublicExist(postId: string) {
@@ -50,6 +53,637 @@ const postService = {
       database.posts.updateOne({ _id: new ObjectId(postId), userId: new ObjectId(userId) }, { $set: updateObj }),
       ...deleteMedia.map(id => deleteCloudinaryFile(id))
     ])
+  },
+
+  async getDetailPost({ userId, postId }: { userId?: string; postId: string }) {
+    const userIdObj = new ObjectId(userId)
+    const [post]: any = await database.posts
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(postId)
+          }
+        },
+        {
+          $lookup: {
+            from: 'user',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        {
+          $unwind: {
+            path: '$user'
+          }
+        },
+        {
+          $lookup: {
+            from: 'like',
+            localField: '_id',
+            foreignField: 'postId',
+            as: 'numberLikes'
+          }
+        },
+        {
+          $lookup: {
+            from: 'comment',
+            localField: '_id',
+            foreignField: 'postId',
+            as: 'numberComments'
+          }
+        },
+        {
+          $lookup: {
+            from: 'post',
+            localField: '_id',
+            foreignField: 'originalPostId',
+            as: 'numberShares'
+          }
+        },
+        {
+          $lookup: {
+            from: 'like',
+            localField: '_id',
+            foreignField: 'postId',
+            pipeline: [
+              {
+                $match: {
+                  userId: userIdObj
+                }
+              }
+            ],
+            as: 'isLike'
+          }
+        },
+        {
+          $lookup: {
+            from: 'bookmark',
+            localField: '_id',
+            foreignField: 'postId',
+            pipeline: [
+              {
+                $match: {
+                  userId: userIdObj
+                }
+              }
+            ],
+            as: 'isBookmark'
+          }
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            localField: 'userId',
+            foreignField: 'followingId',
+            pipeline: [
+              {
+                $match: {
+                  followerId: userIdObj
+                }
+              }
+            ],
+            as: 'isFollow'
+          }
+        },
+        {
+          $addFields: {
+            numberLikes: {
+              $size: '$numberLikes'
+            },
+            numberComments: {
+              $size: '$numberComments'
+            },
+            numberShares: {
+              $size: '$numberShares'
+            },
+            isLike: {
+              $gt: [
+                {
+                  $size: '$isLike'
+                },
+                0
+              ]
+            },
+            isBookmark: {
+              $gt: [
+                {
+                  $size: '$isBookmark'
+                },
+                0
+              ]
+            },
+            isFollow: {
+              $gt: [
+                {
+                  $size: '$isFollow'
+                },
+                0
+              ]
+            }
+          }
+        },
+        {
+          $project: {
+            audience: 1,
+            originalPostId: 1,
+            content: 1,
+            media: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            user: {
+              _id: 1,
+              username: 1,
+              avatar: 1
+            },
+            numberLikes: 1,
+            numberComments: 1,
+            numberShares: 1,
+            isLike: 1,
+            isBookmark: 1,
+            isFollow: 1
+          }
+        }
+      ])
+      .toArray()
+    if (!post) {
+      throw new ErrorWithStatus({ status: HTTP_STATUS.NOT_FOUND, message: 'PostId not found' })
+    }
+    if (userId !== post?.user._id.toString() && post.audience !== Audience.Public) {
+      if (post.audience === Audience.Private || post.isFollow === false) {
+        throw new ErrorWithStatus({ status: HTTP_STATUS.FORBIDDEN, message: 'You cannot access this post' })
+      }
+    }
+    return post
+  },
+
+  getNewsFeed({ userId, lastTime, limit }: { userId: string } & PaginationTimeType) {
+    const userIdObj = new ObjectId(userId)
+    return database.follows
+      .aggregate([
+        {
+          $match: { followerId: userIdObj }
+        },
+        {
+          $lookup: { from: 'post', localField: 'followingId', foreignField: 'userId', as: 'posts' }
+        },
+        {
+          $unwind: { path: '$posts' }
+        },
+        {
+          $replaceRoot: { newRoot: '$posts' }
+        },
+        {
+          $match: {
+            audience: { $in: [Audience.Public, Audience.Followers] },
+            createdAt: { $lt: lastTime ?? new Date() }
+          }
+        },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $lookup: { from: 'user', localField: 'userId', foreignField: '_id', as: 'user' }
+        },
+        {
+          $unwind: { path: '$user' }
+        },
+        {
+          $lookup: { from: 'like', localField: '_id', foreignField: 'postId', as: 'numberLikes' }
+        },
+        {
+          $lookup: { from: 'comment', localField: '_id', foreignField: 'postId', as: 'numberComments' }
+        },
+        {
+          $lookup: { from: 'post', localField: '_id', foreignField: 'originalPostId', as: 'numberShares' }
+        },
+        {
+          $lookup: {
+            from: 'like',
+            localField: '_id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: userIdObj } }],
+            as: 'isLike'
+          }
+        },
+        {
+          $lookup: {
+            from: 'bookmark',
+            localField: '_id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: userIdObj } }],
+            as: 'isBookmark'
+          }
+        },
+        {
+          $addFields: {
+            numberLikes: { $size: '$numberLikes' },
+            numberComments: { $size: '$numberComments' },
+            numberShares: { $size: '$numberShares' },
+            isLike: { $gt: [{ $size: '$isLike' }, 0] },
+            isBookmark: { $gt: [{ $size: '$isBookmark' }, 0] }
+          }
+        },
+        {
+          $project: {
+            user: { _id: 1, username: 1, avatar: 1 },
+            audience: 1,
+            originalPostId: 1,
+            content: 1,
+            media: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            numberLikes: 1,
+            numberComments: 1,
+            numberShares: 1,
+            isLike: 1,
+            isBookmark: 1
+          }
+        }
+      ])
+      .toArray()
+  },
+
+  getNewsFeedWithoutLogin(lastTime: Date | undefined) {
+    return database.posts
+      .aggregate([
+        {
+          $match: { audience: Audience.Public, createdAt: { $lt: lastTime ?? new Date() } }
+        },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $limit: 10
+        },
+        {
+          $lookup: { from: 'user', localField: 'userId', foreignField: '_id', as: 'user' }
+        },
+        {
+          $unwind: { path: '$user' }
+        },
+        {
+          $lookup: { from: 'like', localField: '_id', foreignField: 'postId', as: 'numberLikes' }
+        },
+        {
+          $lookup: { from: 'comment', localField: '_id', foreignField: 'postId', as: 'numberComments' }
+        },
+        {
+          $lookup: { from: 'post', localField: '_id', foreignField: 'originalPostId', as: 'numberShares' }
+        },
+        {
+          $addFields: {
+            numberLikes: { $size: '$numberLikes' },
+            numberComments: { $size: '$numberComments' },
+            numberShares: { $size: '$numberShares' }
+          }
+        },
+        {
+          $project: {
+            user: { _id: 1, username: 1, avatar: 1 },
+            audience: 1,
+            originalPostId: 1,
+            content: 1,
+            media: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            numberLikes: 1,
+            numberComments: 1,
+            numberShares: 1
+          }
+        }
+      ])
+      .toArray()
+  },
+
+  getPostsByUser({ userId, myId, lastTime, limit }: { userId: string; myId?: string } & PaginationTimeType) {
+    return database.users
+      .aggregate([
+        {
+          $match: { _id: new ObjectId(userId) }
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            let: { followingId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [{ $eq: ['$followerId', new ObjectId(myId)] }, { $eq: ['$followingId', '$$followingId'] }]
+                  }
+                }
+              }
+            ],
+            as: 'isFollow'
+          }
+        },
+        {
+          $addFields: { isFollow: { $gt: [{ $size: '$isFollow' }, 0] } }
+        },
+        {
+          $lookup: {
+            from: 'post',
+            localField: '_id',
+            foreignField: 'userId',
+            let: { isFollow: '$isFollow' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $or: [
+                      { $eq: ['$audience', 0] },
+                      {
+                        $and: [
+                          { $or: [{ $eq: ['$$isFollow', true] }, { $eq: ['$userId', new ObjectId(myId)] }] },
+                          { $eq: ['$audience', 1] }
+                        ]
+                      },
+                      { $and: [{ $eq: ['$audience', 2] }, { $eq: ['$userId', new ObjectId(myId)] }] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'post'
+          }
+        },
+        {
+          $unwind: { path: '$post' }
+        },
+        {
+          $lookup: { from: 'like', localField: 'post._id', foreignField: 'postId', as: 'numberLikes' }
+        },
+        {
+          $lookup: { from: 'comment', localField: 'post._id', foreignField: 'postId', as: 'numberComments' }
+        },
+        {
+          $lookup: { from: 'post', localField: 'post._id', foreignField: 'originalPostId', as: 'numberShares' }
+        },
+        {
+          $lookup: {
+            from: 'like',
+            localField: 'post._id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: new ObjectId(myId) } }],
+            as: 'isLike'
+          }
+        },
+        {
+          $lookup: {
+            from: 'bookmark',
+            localField: 'post._id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: new ObjectId(myId) } }],
+            as: 'isBookmark'
+          }
+        },
+        {
+          $addFields: {
+            user: { _id: '$_id', username: '$username', avatar: '$avatar' },
+            _id: '$post._id',
+            audience: '$post.audience',
+            originalPostId: '$post.originalPostId',
+            content: '$post.content',
+            media: '$post.media',
+            createdAt: '$post.createdAt',
+            updatedAt: '$post.updatedAt',
+            numberLikes: { $size: '$numberLikes' },
+            numberComments: { $size: '$numberComments' },
+            numberShares: { $size: '$numberShares' },
+            isLike: { $gt: [{ $size: '$isLike' }, 0] },
+            isBookmark: { $gt: [{ $size: '$isBookmark' }, 0] }
+          }
+        },
+        {
+          $project: {
+            user: 1,
+            _id: 1,
+            audience: 1,
+            originalPostId: 1,
+            content: 1,
+            media: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            numberLikes: 1,
+            numberComments: 1,
+            numberShares: 1,
+            isLike: 1,
+            isBookmark: 1
+          }
+        },
+        {
+          $match: { createdAt: { $lt: lastTime ?? new Date() } }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $sort: { createdAt: -1 }
+        }
+      ])
+      .toArray()
+  },
+
+  getLikePostsByUser({ userId, lastTime, limit }: { userId: string } & PaginationTimeType) {
+    const userIdObj = new ObjectId(userId)
+    return database.likes
+      .aggregate([
+        {
+          $match: { userId: userIdObj, createdAt: { $lt: lastTime ?? new Date() } }
+        },
+        {
+          $lookup: { from: 'post', localField: 'postId', foreignField: '_id', as: 'post' }
+        },
+        {
+          $lookup: { from: 'user', localField: 'post.userId', foreignField: '_id', as: 'user' }
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            localField: 'user._id',
+            foreignField: 'followingId',
+            pipeline: [{ $match: { followerId: userIdObj } }],
+            as: 'isFollow'
+          }
+        },
+        {
+          $unwind: { path: '$post' }
+        },
+        {
+          $unwind: { path: '$user' }
+        },
+        {
+          $addFields: { isFollow: { $gt: [{ $size: '$isFollow' }, 0] } }
+        },
+        {
+          $match: {
+            $or: [
+              { 'post.audience': 0 },
+              { 'post.audience': 1, isFollow: true },
+              { 'post.audience': 2, 'user._id': userIdObj }
+            ]
+          }
+        },
+        {
+          $lookup: { from: 'like', localField: 'post._id', foreignField: 'postId', as: 'numberLikes' }
+        },
+        {
+          $lookup: { from: 'comment', localField: 'post._id', foreignField: 'postId', as: 'numberComments' }
+        },
+        {
+          $lookup: { from: 'post', localField: 'post._id', foreignField: 'originalPostId', as: 'numberShares' }
+        },
+        {
+          $lookup: {
+            from: 'bookmark',
+            localField: 'post._id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: userIdObj } }],
+            as: 'isBookmark'
+          }
+        },
+        {
+          $addFields: {
+            _id: '$post._id',
+            audience: '$post.audience',
+            originalPostId: '$post.originalPostId',
+            content: '$post.content',
+            media: '$post.media',
+            numberLikes: { $size: '$numberLikes' },
+            numberComments: { $size: '$numberComments' },
+            numberShares: { $size: '$numberShares' },
+            isBookmark: { $gt: [{ $size: '$isBookmark' }, 0] },
+            isLike: true,
+            likeAt: '$createdAt'
+          }
+        },
+        {
+          $unset: [
+            'userId',
+            'postId',
+            'createdAt',
+            'post',
+            'user.email',
+            'user.password',
+            'user.accountStatus',
+            'user.fullname',
+            'user.dateOfBirth',
+            'user.gender',
+            'user.biography',
+            'user.links',
+            'user.createdAt',
+            'user.updatedAt'
+          ]
+        },
+        {
+          $sort: { likeAt: -1 }
+        },
+        { $limit: limit }
+      ])
+      .toArray()
+  },
+
+  getBookmarkPostsByUser({ userId, lastTime, limit }: { userId: string } & PaginationTimeType) {
+    const userIdObj = new ObjectId(userId)
+    return database.bookmarks
+      .aggregate([
+        {
+          $match: { userId: userIdObj, createdAt: { $lt: lastTime ?? new Date() } }
+        },
+        {
+          $lookup: { from: 'post', localField: 'postId', foreignField: '_id', as: 'post' }
+        },
+        {
+          $lookup: { from: 'user', localField: 'post.userId', foreignField: '_id', as: 'user' }
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            localField: 'user._id',
+            foreignField: 'followingId',
+            pipeline: [{ $match: { followerId: new ObjectId('67123b7af2ae020119ff20ca') } }],
+            as: 'isFollow'
+          }
+        },
+        {
+          $unwind: { path: '$post' }
+        },
+        {
+          $unwind: { path: '$user' }
+        },
+        {
+          $addFields: { isFollow: { $gt: [{ $size: '$isFollow' }, 0] } }
+        },
+        {
+          $match: {
+            $or: [
+              { 'post.audience': 0 },
+              { 'post.audience': 1, isFollow: true },
+              { 'post.audience': 2, 'user._id': new ObjectId('67123b7af2ae020119ff20ca') }
+            ]
+          }
+        },
+        {
+          $lookup: { from: 'like', localField: 'post._id', foreignField: 'postId', as: 'numberLikes' }
+        },
+        {
+          $lookup: { from: 'comment', localField: 'post._id', foreignField: 'postId', as: 'numberComments' }
+        },
+        {
+          $lookup: { from: 'post', localField: 'post._id', foreignField: 'originalPostId', as: 'numberShares' }
+        },
+        {
+          $lookup: {
+            from: 'like',
+            localField: 'post._id',
+            foreignField: 'postId',
+            pipeline: [{ $match: { userId: new ObjectId('67123b7af2ae020119ff20ca') } }],
+            as: 'isLike'
+          }
+        },
+        {
+          $addFields: {
+            _id: '$post._id',
+            audience: '$post.audience',
+            originalPostId: '$post.originalPostId',
+            content: '$post.content',
+            media: '$post.media',
+            numberLikes: { $size: '$numberLikes' },
+            numberComments: { $size: '$numberComments' },
+            numberShares: { $size: '$numberShares' },
+            isLike: { $gt: [{ $size: '$isLike' }, 0] },
+            isBookmark: true,
+            bookmarkAt: '$createdAt'
+          }
+        },
+        {
+          $unset: [
+            'userId',
+            'postId',
+            'createdAt',
+            'post',
+            'user.email',
+            'user.password',
+            'user.accountStatus',
+            'user.fullname',
+            'user.dateOfBirth',
+            'user.gender',
+            'user.biography',
+            'user.links',
+            'user.createdAt',
+            'user.updatedAt'
+          ]
+        },
+        {
+          $sort: { bookmarkAt: -1 }
+        },
+        { $limit: 10 }
+      ])
+      .toArray()
   }
 }
 

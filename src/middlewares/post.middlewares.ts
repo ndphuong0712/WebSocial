@@ -74,59 +74,62 @@ const createPostValidator = validate(
 )
 
 const updatePostValidator = validate(
-  checkSchema({
-    audience: {
-      isIn: {
-        options: [enumToArrayNumber(Audience)]
+  checkSchema(
+    {
+      audience: {
+        isIn: {
+          options: [enumToArrayNumber(Audience)]
+        },
+        toInt: true,
+        optional: true,
+        errorMessage: `Audience must be a value from 0 to ${enumToArrayNumber(Audience).length - 1}`
       },
-      toInt: true,
-      optional: true,
-      errorMessage: `Audience must be a value from 0 to ${enumToArrayNumber(Audience).length - 1}`
-    },
-    content: {
-      isString: true,
-      trim: true,
-      custom: {
-        options: (value, { req }) => {
-          try {
-            if (req.files.length > 0 || value !== '') {
-              return true
+      content: {
+        isString: true,
+        trim: true,
+        custom: {
+          options: (value, { req }) => {
+            try {
+              if (req.files.length > 0 || value !== '') {
+                return true
+              }
+              const deleteMedia = JSON.parse(req.body.deleteMedia)
+              const mediaLength = (req as Request).mediaPost?.length as number
+              if (deleteMedia.length < mediaLength) return true
+            } catch {
+              return false
             }
-            const deleteMedia = JSON.parse(req.body.deleteMedia)
-            const mediaLength = (req as Request).mediaPost?.length as number
-            if (deleteMedia.length < mediaLength) return true
-          } catch {
-            return false
+          },
+          errorMessage: 'Content must not be empty'
+        },
+        optional: true,
+        errorMessage: 'Content must be a string'
+      },
+      deleteMedia: {
+        isString: {
+          bail: true
+        },
+        customSanitizer: {
+          options: (value, { req }) => {
+            try {
+              const newValue = JSON.parse(value)
+              return newValue.filter((v1: string) => (req as Request).mediaPost?.some(v2 => v2.id === v1))
+            } catch {
+              return null
+            }
           }
         },
-        errorMessage: 'Content must not be empty'
-      },
-      optional: true,
-      errorMessage: 'Content must be a string'
-    },
-    deleteMedia: {
-      isString: {
-        bail: true
-      },
-      customSanitizer: {
-        options: (value, { req }) => {
-          try {
-            const newValue = JSON.parse(value)
-            return newValue.filter((v1: string) => (req as Request).mediaPost?.some(v2 => v2.id === v1))
-          } catch {
-            return null
+        custom: {
+          options: (value, { req }) => {
+            if (value) return true
           }
-        }
-      },
-      custom: {
-        options: (value, { req }) => {
-          if (value) return true
-        }
-      },
+        },
 
-      errorMessage: 'DeleteMedia must be an array'
-    }
-  })
+        errorMessage: 'DeleteMedia must be an array'
+      }
+    },
+    ['body']
+  )
 )
 
 export { createPostValidator, postIdParamsValidator, updatePostValidator, getMediaPost }
