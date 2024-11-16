@@ -23,4 +23,10 @@ enum Audience {
   Private
 }
 
-export { Accountstatus, Gender, FileType, Audience }
+enum ConversationType {
+  Personal,
+  Friend,
+  Group
+}
+
+export { Accountstatus, Gender, FileType, Audience, ConversationType }

@@ -2,7 +2,7 @@ import { ObjectId } from 'mongodb'
 import database from './database.services'
 import { changePasswordType, searchUserType, updateUserType } from '@models/collections/user.models'
 import { deleteCloudinaryFile } from '@utils/cloudinary'
-import { FileType } from '@constants/enum'
+import { Accountstatus, FileType } from '@constants/enum'
 import hashPassword from '@utils/hashPassword'
 import ErrorWithStatus from '@models/error'
 import HTTP_STATUS from '@constants/httpStatus'
@@ -21,18 +21,22 @@ const userService = {
   },
 
   getUserIdByEmail(email: string) {
-    return database.users.findOne({ email, accountStatus: 1 }, { projection: { _id: 1 } })
+    return database.users.findOne({ email, accountStatus: Accountstatus.Verified }, { projection: { _id: 1 } })
   },
 
   getUserById(userId: string) {
     return database.users.findOne(
-      { _id: new ObjectId(userId), accountStatus: 1 },
+      { _id: new ObjectId(userId), accountStatus: Accountstatus.Verified },
       { projection: { accountStatus: 0, password: 0, email: 0, createdAt: 0, updatedAt: 0 } }
     )
   },
 
   getUserIdByUsername(username: string) {
     return database.users.findOne({ username }, { projection: { _id: 1 } })
+  },
+
+  getBasicInfoById(userId: string) {
+    return database.users.findOne({ _id: new ObjectId(userId) }, { projection: { _id: 1, username: 1, avatar: 1 } })
   },
 
   updateInfo({ userId, userInfo }: { userId: string; userInfo: updateUserType }) {

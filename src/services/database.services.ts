@@ -1,8 +1,11 @@
 import ENV from '@constants/env'
 import Bookmark from '@models/collections/bookmark.models'
 import Comment from '@models/collections/comment.models'
+import Conversation from '@models/collections/conversation.models'
 import Follow from '@models/collections/follow.models'
 import Like from '@models/collections/like.models'
+import Message from '@models/collections/message.models'
+import Notification from '@models/collections/notification.models'
 import Post from '@models/collections/post.models'
 import RefreshToken from '@models/collections/refreshToken.models'
 import User from '@models/collections/user.models'
@@ -50,6 +53,18 @@ class Database {
 
   get comments() {
     return this.db.collection<Comment>('comment')
+  }
+
+  get conversations() {
+    return this.db.collection<Conversation>('conversation')
+  }
+
+  get notifications() {
+    return this.db.collection<Notification>('notification')
+  }
+
+  get messages() {
+    return this.db.collection<Message>('message')
   }
 }
 const database = new Database()

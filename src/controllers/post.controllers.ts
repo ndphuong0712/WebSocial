@@ -1,3 +1,5 @@
+import HTTP_STATUS from '@constants/httpStatus'
+import ErrorWithStatus from '@models/error'
 import FileAttachmentType from '@models/fileAttachment'
 import wrapRequestHandler from '@utils/wrapRequestHandler'
 import { NextFunction, Request, Response } from 'express'
@@ -59,6 +61,16 @@ const getLBookmarkPostsByUserController = wrapRequestHandler(
     res.json({ message: 'Get bookmark posts by user successfully', data: posts })
   }
 )
+
+const deletePostController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.tokenDecode?._id as string
+  const postId = req.params.postId
+  const result = await postService.deletePost({ postId, userId })
+  if (result.deletedCount === 0) {
+    throw new ErrorWithStatus({ status: HTTP_STATUS.BAD_REQUEST, message: 'Delete post failed' })
+  }
+  res.json({ message: 'Delete post successfully' })
+})
 export {
   createPostController,
   updatePostController,
@@ -66,5 +78,6 @@ export {
   newsFeedController,
   getPostsByUserController,
   getLikePostsByUserController,
-  getLBookmarkPostsByUserController
+  getLBookmarkPostsByUserController,
+  deletePostController
 }

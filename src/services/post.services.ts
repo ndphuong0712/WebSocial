@@ -681,9 +681,13 @@ const postService = {
         {
           $sort: { bookmarkAt: -1 }
         },
-        { $limit: 10 }
+        { $limit: limit }
       ])
       .toArray()
+  },
+
+  deletePost({ userId, postId }: { userId: string; postId: string }) {
+    return database.posts.deleteOne({ _id: new ObjectId(postId), userId: new ObjectId(userId) })
   }
 }
 

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="container" style="border-radius: 10px; background-color: aliceblue; padding: 20px; font-size: 20px">
+      <div class="center-container" style="text-align: center">
+        <img
+          src="https://res.cloudinary.com/ndp0712/image/upload/v1731351043/LogoWebSocialWithText_ypchdb.png"
+          alt=""
+          width="150"
+        />
+      </div>
+      <p>Xin chào {{username}},</p>
+      <p>
+        Cảm ơn bạn đã đăng ký tài khoản trên <strong>Web Social</strong>! Để hoàn tất quá trình đăng ký và kích hoạt tài
+        khoản của bạn, vui lòng xác thực email này.
+      </p>
+      <p>Nhấn vào nút bên dưới để xác thực tài khoản của bạn:</p>
+      <div class="center-container" style="text-align: center">
+        <a
+          class="btn"
+          style="
+            border: none;
+            background: rgb(236, 190, 71);
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 20px;
+            text-decoration: none;
+            color: black;
+          "
+          href="{{link}}"
+          >Xác thực email</a
+        >
+      </div>
+      <p>Lưu ý: Liên kết này chỉ có hiệu lực trong vòng 3 phút</p>
+    </div>
+  </body>
+</html>

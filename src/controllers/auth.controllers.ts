@@ -1,20 +1,33 @@
 import ENV from '@constants/env'
 import { TokenDecodeType } from '@models/token'
+import { sendForgetPasswordMail, sendRegisterMail } from '@utils/mail'
 import wrapRequestHandler from '@utils/wrapRequestHandler'
 import { NextFunction, Request, Response } from 'express'
 import { ObjectId } from 'mongodb'
 import authService from 'src/services/auth.services'
+import conversationService from 'src/services/conversation.services'
+import { userService } from 'src/services/user.services'
 
 const registerController = wrapRequestHandler(async (req: Request, res: Response) => {
   const userId = await authService.register(req.body)
-  // Gửi mail
   const token = await authService.signVerifyEmailToken({ _id: userId.toString() })
+
+  //Gửi mail
+  await sendRegisterMail({
+    email: req.body.email,
+    username: req.body.username,
+    link: `${ENV.VERIFY_EMAIL_CLIENT_URL}?${token}`
+  })
   /////////////////////////////
   res.json({ message: 'Register successfully', token })
 })
 
 const verifyEmailController = wrapRequestHandler(async (req: Request, res: Response) => {
-  const result = await authService.verifyEmail(req.tokenDecode?._id as string)
+  const userId = req.tokenDecode?._id as string
+  const result = await authService.verifyEmail(userId)
+  if (result) {
+    await conversationService.createPersonalConversation(userId)
+  }
   res.json({ message: result ? 'Verify email successfully' : 'Verify email failed or email has been verified' })
 })
 
@@ -37,8 +50,10 @@ const logoutController = wrapRequestHandler(async (req: Request, res: Response) 
 
 const sendMailForgetPasswordController = wrapRequestHandler(async (req: Request, res: Response) => {
   //Gửi mail
+  const email = req.body.email
   const userId = req.body.userId as ObjectId
   const token = await authService.signForgetPasswordToken({ _id: userId.toString() })
+  await sendForgetPasswordMail({ email, link: `${ENV.RESET_PASSWORD_CLIENT_URL}?${token}` })
   //
   res.json({ message: 'Send mail forget pasword successfully', token })
 })
@@ -53,10 +68,16 @@ const resetPasswordController = wrapRequestHandler(async (req: Request, res: Res
 const loginGoogleController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
   const { code, error } = req.query
   if (error) {
-    return res.redirect(ENV.LOGIN_CLIENT_URL)
+    return res.redirect(ENV.CLIENT_URL_LOGIN)
   }
   const { refreshToken, accessToken } = await authService.loginGoogle(code as string)
-  res.redirect(`${ENV.LOGIN_CLIENT_URL}?accessToken=${accessToken}&refreshToken=${refreshToken}`)
+  res.redirect(`${ENV.CLIENT_URL_LOGIN}?accessToken=${accessToken}&refreshToken=${refreshToken}`)
+})
+
+const meController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.tokenDecode?._id as string
+  const data = await userService.getBasicInfoById(userId)
+  res.json({ message: 'Get basic info successfully', data })
 })
 
 export {
@@ -67,5 +88,6 @@ export {
   logoutController,
   sendMailForgetPasswordController,
   resetPasswordController,
-  loginGoogleController
+  loginGoogleController,
+  meController
 }

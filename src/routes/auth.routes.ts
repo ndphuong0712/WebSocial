@@ -2,6 +2,7 @@ import {
   loginController,
   loginGoogleController,
   logoutController,
+  meController,
   refreshTokenController,
   registerController,
   resetPasswordController,
@@ -9,6 +10,7 @@ import {
   verifyEmailController
 } from '@controllers/auth.controllers'
 import {
+  accessTokenValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator,
@@ -28,5 +30,8 @@ authRouter.post('/logout', logoutController)
 authRouter.post('/sendMailForgetPassword', sendMailForgetPasswordValidator, sendMailForgetPasswordController)
 authRouter.post('/resetPassword', resetPasswordValidator, resetPasswordController)
 authRouter.get('/google', loginGoogleController)
+
+authRouter.use(accessTokenValidator)
+authRouter.get('/me', meController)
 
 export default authRouter

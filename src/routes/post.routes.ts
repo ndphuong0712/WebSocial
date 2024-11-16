@@ -1,12 +1,13 @@
 import {
   createPostController,
+  deletePostController,
   getDetailPostController,
   getLBookmarkPostsByUserController,
   getLikePostsByUserController,
   getPostsByUserController,
   newsFeedController,
   updatePostController
-} from '@controllers/post.controller'
+} from '@controllers/post.controllers'
 import { accessTokenValidator, optionalAccessTokenValidator } from '@middlewares/auth.middlewares'
 import { paginationTimeValidator } from '@middlewares/pagination.middlewares'
 import {
@@ -41,5 +42,6 @@ postRouter.patch(
   updatePostValidator,
   updatePostController
 )
+postRouter.delete('/:postId', postIdParamsValidator, deletePostController)
 
 export default postRouter

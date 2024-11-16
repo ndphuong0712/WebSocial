@@ -10,6 +10,7 @@ import ErrorWithStatus from '@models/error'
 import HTTP_STATUS from '@constants/httpStatus'
 import RefreshToken from '@models/collections/refreshToken.models'
 import axios from 'axios'
+import conversationService from './conversation.services'
 
 const authService = {
   async register(userRegister: registerType) {
@@ -80,17 +81,20 @@ const authService = {
     const user = await database.users.findOne({
       email: userLogin.email,
       password: hashPassword(userLogin.password),
-      accountStatus: 1
+      accountStatus: Accountstatus.Verified
     })
     if (!user) {
-      throw new ErrorWithStatus({ status: HTTP_STATUS.UNAUTHORIZED, message: 'Password or username is incorrect' })
+      throw new ErrorWithStatus({
+        status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+        message: 'Password or username is incorrect'
+      })
     }
     const [refreshToken, accessToken] = await Promise.all([
       this.signRefreshToken({ _id: user._id.toString() }),
       this.signAccessToken({ _id: user._id.toString() })
     ])
     await database.refreshTokens.insertOne(new RefreshToken({ userId: user._id, token: refreshToken }))
-    return { refreshToken, accessToken }
+    return { refreshToken, accessToken, user: { _id: user._id, username: user.username, avatar: user.avatar } }
   },
 
   async handleRefreshToken(tokenDecode: TokenDecodeType, oldRefreshToken: string) {
@@ -134,7 +138,10 @@ const authService = {
       user.username = user._id.toString()
       user.accountStatus = Accountstatus.Verified
       delete user.timeVerifyEmail
-      await database.users.insertOne(user)
+      await Promise.all([
+        database.users.insertOne(user),
+        conversationService.createPersonalConversation(user._id.toString())
+      ])
     }
     const [refreshToken, accessToken] = await Promise.all([
       this.signRefreshToken({ _id: user._id.toString() }),
