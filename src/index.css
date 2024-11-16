@@ -546,7 +546,8 @@ button.log_btn:hover {
   font-weight: 400;
 }
 .nav .menu ul li a.active {
-  font-weight: 500;
+  font-weight: 600;
+  color: #597fe4;
 }
 .nav .menu ul li a img {
   margin-right: 10px;
@@ -779,7 +780,8 @@ button.log_btn:hover {
   width: 56px;
   height: 56px;
   border-radius: 30px;
-  padding: 5px;
+  margin: 5px;
+  box-shadow: 0 0 2px black;
 }
 
 .main_section .posts_container .post .info .person p {
@@ -1803,14 +1805,14 @@ button.log_btn:hover {
   height: 28px;
   border-radius: 100%;
   margin-right: 6px;
-  box-shadow: 0 0 1px black;
+  box-shadow: 0 0 2px black;
 }
 .nav_bottom a img.avatar {
   width: 28px;
   height: 28px;
   border-radius: 100%;
   margin-right: 6px;
-  box-shadow: 0 0 1px black;
+  box-shadow: 0 0 2px black;
 }
 
 .content .logo {
