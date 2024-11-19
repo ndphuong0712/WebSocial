@@ -16,7 +16,7 @@ const registerController = wrapRequestHandler(async (req: Request, res: Response
   await sendRegisterMail({
     email: req.body.email,
     username: req.body.username,
-    link: `${ENV.VERIFY_EMAIL_CLIENT_URL}?${token}`
+    link: `${ENV.CLIENT_URL_VERIFY_EMAIL}?token=${token}`
   })
   /////////////////////////////
   res.json({ message: 'Register successfully', token })
@@ -28,7 +28,7 @@ const verifyEmailController = wrapRequestHandler(async (req: Request, res: Respo
   if (result) {
     await conversationService.createPersonalConversation(userId)
   }
-  res.json({ message: result ? 'Verify email successfully' : 'Verify email failed or email has been verified' })
+  res.json({ message: 'Verify email successfully' })
 })
 
 const loginController = wrapRequestHandler(async (req: Request, res: Response) => {
@@ -53,7 +53,7 @@ const sendMailForgetPasswordController = wrapRequestHandler(async (req: Request,
   const email = req.body.email
   const userId = req.body.userId as ObjectId
   const token = await authService.signForgetPasswordToken({ _id: userId.toString() })
-  await sendForgetPasswordMail({ email, link: `${ENV.RESET_PASSWORD_CLIENT_URL}?${token}` })
+  await sendForgetPasswordMail({ email, link: `${ENV.CLIENT_URL_RESET_PASSWORD}?token=${token}` })
   //
   res.json({ message: 'Send mail forget pasword successfully', token })
 })

@@ -41,7 +41,7 @@ class User {
     this.gender = Gender.Unknown
     this.biography = ''
     this.avatar = {
-      url: avartar ?? '',
+      url: avartar ?? 'http://localhost:8888/images/userAvatar.jpg',
       id: '',
       type: FileType.Image
     }
