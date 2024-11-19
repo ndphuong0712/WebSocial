@@ -1,8 +1,9 @@
 import { createContext, useEffect, useState } from "react"
 import { Outlet, useLocation, useSearchParams } from "react-router-dom"
 import { getBasicInfo } from "../services/user.services"
-import Loader from "../components/loader"
+
 import { checkAccessToken } from "../services/auth.services"
+import Loader from "../components/Loader"
 
 const AuthContext = createContext()
 const AuthProvider = () => {

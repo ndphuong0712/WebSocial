@@ -21,7 +21,6 @@ axiosInstance.interceptors.response.use(
     return res.data
   },
   async (error) => {
-    console.log(error)
     if (error.response.status === 422) {
       return Promise.reject(error.response.data)
     }

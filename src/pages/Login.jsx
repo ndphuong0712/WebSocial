@@ -6,10 +6,8 @@ import { useContext, useState } from "react"
 import { loginUser } from "../services/auth.services"
 import { AuthContext } from "../contexts/AuthProvider"
 import Loader from "../components/loader"
+import { emailRegex } from "../utils/regex"
 
-const emailReg =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-const passwordReg = /^.{8,32}$/
 const Login = () => {
   const { setUserContext } = useContext(AuthContext)
   const [email, setEmail] = useState("")
@@ -21,11 +19,11 @@ const Login = () => {
     setLoading(true)
     let check = true
     const err = {}
-    if (!emailReg.test(email)) {
+    if (!emailRegex.test(email)) {
       check = false
       err.email = "Email không đúng định dạng"
     }
-    if (!passwordReg.test(password)) {
+    if (password.length < 8 || password.length > 32) {
       check = false
       err.password = "Mật khẩu phải từ 8 đến 32 kí tự"
     }

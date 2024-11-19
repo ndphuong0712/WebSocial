@@ -8,6 +8,11 @@ export const loginUser = async (dataBody) => {
   return data
 }
 
+export const logoutUser = (dataBody) =>
+  axios.post("/auth/logout", dataBody, {
+    baseURL: import.meta.env.VITE_SERVER_URL
+  })
+
 export const checkAccessToken = async (accessToken) => {
   try {
     const { data } = await axios.get("/auth/me", {
@@ -18,4 +23,14 @@ export const checkAccessToken = async (accessToken) => {
   } catch {
     window.location.href = "/login"
   }
+}
+
+export const registerUser = async (dataBody) => {
+  await axiosInstance.post("/auth/register", dataBody)
+}
+
+export const verifyEmail = async (dataBody) => {
+  await axios.post("/auth/verifyEmail", dataBody, {
+    baseURL: import.meta.env.VITE_SERVER_URL
+  })
 }

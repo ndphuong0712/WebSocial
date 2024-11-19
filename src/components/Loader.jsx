@@ -12,7 +12,8 @@ const Loader = ({ loading }) => {
         position: "fixed",
         inset: 0,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        zIndex: 1000000
       }}
     />
   )
