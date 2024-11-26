@@ -11,12 +11,10 @@ const updateHasNotificationFalseController = wrapRequestHandler(
   }
 )
 
-const getAllNotificationsByUserController = wrapRequestHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.tokenDecode?._id as string
-    const notifications = await notificationService.getAllNotificationByUser(userId)
-    res.json({ message: 'Get all notfications by user successfully', data: notifications })
-  }
-)
+const getNotificationsByUserController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.tokenDecode?._id as string
+  const notifications = await notificationService.getNotificationsByUser(userId)
+  res.json({ message: 'Get all notfications by user successfully', data: notifications })
+})
 
-export { updateHasNotificationFalseController, getAllNotificationsByUserController }
+export { updateHasNotificationFalseController, getNotificationsByUserController }

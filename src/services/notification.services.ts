@@ -31,7 +31,7 @@ const notificationService = {
     )
   },
 
-  getAllNotificationByUser(userId: string) {
+  getNotificationsByUser(userId: string) {
     return database.notifications.find({ userId: new ObjectId(userId) }).toArray()
   }
 }

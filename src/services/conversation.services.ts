@@ -34,7 +34,7 @@ const conversationService = {
   },
 
   getAllConversationsByUser(userId: string) {
-    return database.conversations.find({ participants: new ObjectId(userId) }).toArray()
+    return database.conversations.find({ participants: new ObjectId(userId) }, { projection: { _id: 1 } }).toArray()
   },
 
   async getInfoConversation({ conversationId, userId }: { conversationId: string; userId: string }) {
@@ -79,7 +79,14 @@ const conversationService = {
         },
         { $addFields: { lastMessage: { $first: '$messages' } } },
         // Lấy các cuộc trò chuyện đã có tin nhắn và cuộc trò chuyện cá nhân
-        { $match: { $or: [{ lastMessage: { $ne: null } }, { type: 0 }] } },
+        {
+          $match: {
+            $or: [
+              { lastMessage: { $ne: null } },
+              { $or: [{ type: ConversationType.Personal }, { type: ConversationType.Group }] }
+            ]
+          }
+        },
         // Lấy name và avatar của cuộc trò chuyện cá nhân và bạn bè
         {
           $lookup: {
@@ -92,8 +99,8 @@ const conversationService = {
                 $match: {
                   $expr: {
                     $or: [
-                      { $and: [{ $eq: ['$$type', 1] }, { $ne: [new ObjectId('67123b7af2ae020119ff20ca'), '$_id'] }] },
-                      { $and: [{ $eq: ['$$type', 0] }, { $eq: [new ObjectId('67123b7af2ae020119ff20ca'), '$_id'] }] }
+                      { $and: [{ $eq: ['$$type', ConversationType.Friend] }, { $ne: [userIdObj, '$_id'] }] },
+                      { $and: [{ $eq: ['$$type', ConversationType.Personal] }, { $eq: [userIdObj, '$_id'] }] }
                     ]
                   }
                 }
@@ -114,8 +121,9 @@ const conversationService = {
           $project: {
             _id: 1,
             type: 1,
-            name: { $cond: [{ $ne: ['$type', 2] }, '$result.username', '$name'] },
-            avatar: { $cond: [{ $ne: ['$type', 2] }, '$result.avatar', '$avatar'] },
+            friendId: { $cond: [{ $eq: ['$type', ConversationType.Friend] }, '$result._id', null] },
+            name: { $cond: [{ $ne: ['$type', ConversationType.Group] }, '$result.username', '$name'] },
+            avatar: { $cond: [{ $ne: ['$type', ConversationType.Group] }, '$result.avatar', '$avatar'] },
             lastMessage: 1
           }
         }

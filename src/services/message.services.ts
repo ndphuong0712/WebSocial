@@ -6,6 +6,7 @@ import database from './database.services'
 import ErrorWithStatus from '@models/error'
 import HTTP_STATUS from '@constants/httpStatus'
 import { deleteCloudinaryFile } from '@utils/cloudinary'
+import { ConversationType } from '@constants/enum'
 
 const messageService = {
   async createMessage({
@@ -16,7 +17,11 @@ const messageService = {
   }: Omit<CreateMessageType, 'media'> & { files: Express.Multer.File[] }) {
     const media = await mediaService.handleUploadMultipleFilesToCloudinary(files)
     const message = new Message({ userId, conversationId, content, media })
-    await database.messages.insertOne(message)
+    const [user] = await Promise.all([
+      database.users.findOne({ _id: new ObjectId(userId) }, { projection: { username: 1, avatar: 1 } }),
+      database.messages.insertOne(message)
+    ])
+    ;(message as any).user = user
     return message
   },
 

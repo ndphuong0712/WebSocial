@@ -20,8 +20,10 @@ conversationRouter.post(
   findOrCreateConversationFriendValidator,
   findOrCreateConversationFriendController
 )
+//Lấy tất cả cuộc trò chuyện
 conversationRouter.get('/all', getAllConversationsByUserController)
 conversationRouter.get('/:conversationId', conversationIdParamsValidator, getInfoConversationController)
+//Lấy cuộc trò chuyện cá nhân hoặc cuộc trò chuyện đã có tin nhắn
 conversationRouter.get('/', getConversationsByUserController)
 
 export default conversationRouter

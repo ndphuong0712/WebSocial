@@ -21,7 +21,8 @@ const ENV = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
   CLIENT_URL_VERIFY_EMAIL: process.env.CLIENT_URL_VERIFY_EMAIL as string,
-  CLIENT_URL_RESET_PASSWORD: process.env.CLIENT_URL_RESET_PASSWORD as string
+  CLIENT_URL_RESET_PASSWORD: process.env.CLIENT_URL_RESET_PASSWORD as string,
+  CLIENT_URL: process.env.CLIENT_URL as string
 }
 
 export default ENV

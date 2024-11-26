@@ -1,10 +1,9 @@
 import {
-  getAllNotificationsByUserController,
+  getNotificationsByUserController,
   updateHasNotificationFalseController
 } from '@controllers/notification.controllers'
 import { accessTokenValidator } from '@middlewares/auth.middlewares'
 import { updateHasNotificationFalseValidator } from '@middlewares/notification.middlewares'
-import { userIdParamsValidator } from '@middlewares/user.middllewares'
 import { Router } from 'express'
 
 const notificationRouter = Router()
@@ -15,6 +14,6 @@ notificationRouter.patch(
   updateHasNotificationFalseValidator,
   updateHasNotificationFalseController
 )
-notificationRouter.get('/', getAllNotificationsByUserController)
+notificationRouter.get('/', getNotificationsByUserController)
 
 export default notificationRouter
