@@ -57,7 +57,6 @@ const refreshToken = async () => {
   const res = await axios.post(`${SERVER_URL}/auth/refreshToken`, {
     token: localStorage.getItem("refreshToken")
   })
-  console.log(requestsToRefresh)
   localStorage.setItem("refreshToken", res.data.data.refreshToken)
   localStorage.setItem("accessToken", res.data.data.accessToken)
   await Promise.all(requestsToRefresh.map((cb) => cb()))

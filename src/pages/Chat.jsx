@@ -1,14 +1,23 @@
-import { IoIosImages } from "react-icons/io"
-import { MdInfo, MdSend } from "react-icons/md"
+import MainChat from "./MainChat"
+import { useContext } from "react"
+import { ChatContext } from "../contexts/ChatProvider"
+import ConversationItem from "../components/chat/ConversationItem"
 
 const Chat = () => {
+  const { conversations } = useContext(ChatContext)
   return (
     <div className="chat_div">
       <div className="chat-container">
         <div className="sibebar-conversation">
           <h1>Chat</h1>
           <div className="conversation-list">
-            <div className="conversation active">
+            {conversations.map((conversation) => (
+              <ConversationItem
+                key={conversation._id}
+                conversation={conversation}
+              />
+            ))}
+            {/* <div className="conversation active">
               <div className="avatar">
                 <img
                   src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVNIO4DuH-jwqYPgpIrfurqykYUifH63z5dA&s"
@@ -58,33 +67,10 @@ const Chat = () => {
                 </div>
                 <span className="message">Text text text</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
-        {/* <div class="chat-box">
-          <h1 class="m-auto">No conversation</h1>
-        </div> */}
-        <div className="chat-box">
-          <div className="chat-header">
-            <div className="chat-info">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXNLf6lX2yRCGfW9exRiCmjEYbGhq96NxQDQ&s" />
-              <p className="name">nvgdddd_f</p>
-            </div>
-            <div className="chat-icon">
-              <MdInfo className="icon" color="#daa520" />
-            </div>
-          </div>
-          <div className="chat-content">
-            <div className="message received" title="10/10/2021">
-              Hello
-            </div>
-          </div>
-          <div className="chat-input">
-            <IoIosImages className="icon" color="#daa520" />
-            <input type="text" placeholder="Type a message..." />
-            <MdSend className="icon" color="#daa520"></MdSend>
-          </div>
-        </div>
+        <MainChat />
       </div>
     </div>
   )
