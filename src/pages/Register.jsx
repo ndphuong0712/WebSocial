@@ -11,6 +11,7 @@ import {
 } from "../utils/regex"
 import { registerUser } from "../services/auth.services"
 import Loader from "../components/loader"
+import getGoogleOAuthUrl from "../utils/getGoogleOAuthUrl"
 
 const Register = () => {
   const [email, setEmail] = useState("")
@@ -207,8 +208,10 @@ const Register = () => {
             <span style={{ padding: "0 10px" }}>Hoặc</span>
             <hr style={{ width: "100%" }} />
           </div>
-          <button
+          <Link
+            to={getGoogleOAuthUrl()}
             style={{
+              color: "black",
               margin: "10px 0",
               border: "2px solid #c6bcbc",
               padding: "10px 20px",
@@ -217,7 +220,8 @@ const Register = () => {
               borderRadius: 10,
               fontWeight: 600,
               backgroundColor: "white",
-              position: "relative"
+              position: "relative",
+              textAlign: "center"
             }}>
             <FcGoogle
               size={32}
@@ -229,7 +233,7 @@ const Register = () => {
               }}
             />
             Đăng nhập bằng google
-          </button>
+          </Link>
         </Container>
       )}
 

@@ -8,7 +8,7 @@ import { logoutUser } from "../../services/auth.services"
 import { useContext, useState } from "react"
 import Loader from "../Loader"
 import { AuthContext } from "../../contexts/AuthProvider"
-const Navbar = () => {
+const Navbar = ({ notifications }) => {
   const navigate = useNavigate()
   const { user, setUserContext } = useContext(AuthContext)
   const [loading, setLoading] = useState(false)
@@ -28,7 +28,7 @@ const Navbar = () => {
           {/* <!-- nav for big->medium screen --> */}
           <div className="nav">
             <div className="logo">
-              <a href="./home.html">
+              <a href="/">
                 <img
                   className="d-block d-lg-none small-logo"
                   src={Logo2}
@@ -60,6 +60,19 @@ const Navbar = () => {
                   <NavLink to={"/chat"}>
                     <IoIosSend size={24} style={{ marginRight: 10 }} />
                     <span className="d-none d-lg-block">Tin nhắn</span>
+                    {notifications.filter((n) => n.hasNotification).length >
+                      0 && (
+                      <span
+                        className="d-none d-lg-block bg-danger rounded-circle text-center p-0"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          lineHeight: "28px",
+                          color: "black"
+                        }}>
+                        +{notifications.filter((n) => n.hasNotification).length}
+                      </span>
+                    )}
                   </NavLink>
                 </li>
 
@@ -158,10 +171,10 @@ const Navbar = () => {
           </NavLink>
 
           {user && (
-            <a href="./profile.html">
+            <NavLink to="/profile">
               <img className="avatar" src={user.avatar.url} />
               <span className="d-none d-lg-block">Trang cá nhân</span>
-            </a>
+            </NavLink>
           )}
         </div>
       </div>

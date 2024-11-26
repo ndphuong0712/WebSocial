@@ -34,3 +34,19 @@ export const verifyEmail = async (dataBody) => {
     baseURL: import.meta.env.VITE_SERVER_URL
   })
 }
+
+export const forgetPassword = async (email) => {
+  await axios.post(
+    "/auth/sendMailForgetPassword",
+    { email },
+    {
+      baseURL: import.meta.env.VITE_SERVER_URL
+    }
+  )
+}
+
+export const resetPassword = async (dataBody) => {
+  await axios.post("/auth/resetPassword", dataBody, {
+    baseURL: import.meta.env.VITE_SERVER_URL
+  })
+}

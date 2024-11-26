@@ -4,7 +4,7 @@ import Login from "../pages/Login"
 import Register from "../pages/Register"
 import AuthRedirect from "../components/auth/AuthRedirect"
 import ForgetPassword from "../pages/forgetPassword"
-import NotificationProvider from "../contexts/NotificationProvider"
+import { NotificationProvider } from "../contexts/NotificationProvider"
 import MainLayout from "../layouts/MainLayout"
 import Home from "../pages/Home"
 import Search from "../pages/Search"
@@ -12,6 +12,9 @@ import Profile from "../pages/Profile"
 import Chat from "../pages/Chat"
 import PrivateRoute from "../components/auth/PrivateRoute"
 import VerifyEmail from "../pages/VerifyEmail"
+import ResetPassword from "../pages/ResetPassword"
+import MainChat from "../pages/MainChat"
+import { ChatProvider } from "../contexts/ChatProvider"
 
 const router = createBrowserRouter([
   {
@@ -41,9 +44,12 @@ const router = createBrowserRouter([
                 path: "/chat",
                 element: (
                   <PrivateRoute>
-                    <Chat />
+                    <ChatProvider>
+                      <Chat />
+                    </ChatProvider>
                   </PrivateRoute>
-                )
+                ),
+                children: [{ path: ":conversationId", element: <MainChat /> }]
               }
             ]
           }
@@ -51,7 +57,8 @@ const router = createBrowserRouter([
       }
     ]
   },
-  { path: "/verifyEmail", element: <VerifyEmail /> }
+  { path: "/verifyEmail", element: <VerifyEmail /> },
+  { path: "/resetPassword", element: <ResetPassword /> }
 ])
 
 export default router
