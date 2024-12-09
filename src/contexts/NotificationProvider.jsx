@@ -48,9 +48,12 @@ const NotificationProvider = () => {
   useEffect(() => {
     if (socket) {
       socket.on("getNewNotification", (newMessage) => {
+        //Khi người dùng cũng đang trong đoạn chat
         if (conversationId === newMessage.conversationId) {
-          //Khi người dùng cũng đang trong đoạn chat
-        } else {
+          // Ko cần làm gì
+        }
+        //Khi người dùng không trong đoạn chat
+        else {
           const _notifications = [...notifications]
           for (let i = 0; i < _notifications.length; ++i) {
             if (
@@ -67,8 +70,24 @@ const NotificationProvider = () => {
       if (socket) socket.off("getNewNotification")
     }
   }, [notifications, socket, conversationId])
-
-  console.log("NOTIFICATIONS: ", notifications)
+  useEffect(() => {
+    if (socket) {
+      socket.on("createNewChatFriend", (conversationId) => {
+        console.log("Tạo cuộc trò chuyện mới")
+        setAllConversations([...allConversations, conversationId])
+        const notification = {
+          conversationId: conversationId,
+          hasNotification: false,
+          lastMessageId: null,
+          userId: user._id
+        }
+        setNotifications((prev) => [notification, ...prev])
+      })
+    }
+    return () => {
+      if (socket) socket.off("createNewChatFriend")
+    }
+  }, [socket, allConversations])
 
   useEffect(() => {
     if (conversationId) {
@@ -88,10 +107,20 @@ const NotificationProvider = () => {
     }
   }, [socket, allConversations])
 
+  console.log("Thông báo: ", notifications)
+  console.log("Các cuộc trò chuyện: ", allConversations)
+
   return (
     <NotificationContext.Provider
-      value={{ socket, notifications, onlineUsers, setNotifications }}>
-      {!user || (!loading && socket && <Outlet />)}
+      value={{
+        socket,
+        notifications,
+        onlineUsers,
+        setNotifications,
+        allConversations,
+        setAllConversations
+      }}>
+      {(!user || (!loading && socket)) && <Outlet />}
     </NotificationContext.Provider>
   )
 }

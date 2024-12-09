@@ -5,9 +5,10 @@ const axiosInstance = axios.create({ baseURL: SERVER_URL })
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    config.headers.Authorization = `Bearer ${localStorage.getItem(
-      "accessToken"
-    )}`
+    if (localStorage.getItem("accessToken"))
+      config.headers.Authorization = `Bearer ${localStorage.getItem(
+        "accessToken"
+      )}`
     return config
   },
   (error) => Promise.reject(error)

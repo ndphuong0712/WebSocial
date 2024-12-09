@@ -743,6 +743,7 @@ button.log_btn:hover {
 }
 .main_section .posts_container {
   max-width: 550px;
+  position: relative;
 }
 @media screen and (max-width: 498px) {
   .main_section .posts_container {
@@ -1913,6 +1914,7 @@ button.log_btn:hover {
   display: flex;
   flex-wrap: wrap;
   font-size: 20px;
+  color: #000;
 }
 @media screen and (max-width: 498px) {
   .profile .profile_info .info p.name {

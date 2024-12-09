@@ -14,3 +14,11 @@ export const getInfoConversation = async (conversationId) => {
   const { data } = await axiosInstance.get(`/conversations/${conversationId}`)
   return data
 }
+
+export const findOrCreateFriendConversation = async (userId) => {
+  const { data } = await axiosInstance.post(
+    "/conversations/findOrCreateConversationFriend",
+    { userId }
+  )
+  return data.conversationId
+}

@@ -92,7 +92,7 @@ const Navbar = ({ notifications }) => {
                 </li>
                 {user && (
                   <li>
-                    <NavLink to={"/profile"}>
+                    <NavLink to={`/profile/${user._id}`}>
                       <img className="avatar" src={user.avatar.url} />
                       <span className="d-none d-lg-block">Trang cá nhân</span>
                     </NavLink>
@@ -171,7 +171,7 @@ const Navbar = ({ notifications }) => {
           </NavLink>
 
           {user && (
-            <NavLink to="/profile">
+            <NavLink to={`/profile/${user._id}`}>
               <img className="avatar" src={user.avatar.url} />
               <span className="d-none d-lg-block">Trang cá nhân</span>
             </NavLink>

@@ -1,0 +1,23 @@
+.user_item {
+  padding: 10px 10px;
+  display: flex;
+}
+
+.user_item:hover {
+  background-color: rgb(204, 215, 225);
+}
+
+.user_item .avatar {
+  border-radius: 100%;
+  width: 60px;
+  height: 60px;
+}
+
+.user_item .info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user_item .btn {
+  margin: auto;
+}
