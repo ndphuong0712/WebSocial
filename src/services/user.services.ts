@@ -27,7 +27,7 @@ const userService = {
   getUserById(userId: string) {
     return database.users.findOne(
       { _id: new ObjectId(userId), accountStatus: Accountstatus.Verified },
-      { projection: { accountStatus: 0, password: 0, email: 0, createdAt: 0, updatedAt: 0 } }
+      { projection: { accountStatus: 0, password: 0, email: 0, dateOfBirth: 0, gender: 0, createdAt: 0, updatedAt: 0 } }
     )
   },
 
@@ -73,7 +73,8 @@ const userService = {
     const [user, numberFollowers, numberFollowings, isUserFollowMe, isFollowUser] = await Promise.all([
       database.users.findOne(
         { _id: objUserId },
-        { projection: { username: 1, fullname: 1, dateOfBirth: 1, gender: 1, biography: 1, avatar: 1, links: 1 } }
+        // { projection: { username: 1, fullname: 1, biography: 1, avatar: 1, links: 1 } }
+        { projection: { username: 1, fullname: 1, biography: 1, avatar: 1 } }
       ),
       database.follows.countDocuments({ followingId: objUserId }),
       database.follows.countDocuments({ followerId: objUserId }),
@@ -107,8 +108,8 @@ const userService = {
             dateOfBirth: 1,
             gender: 1,
             biography: 1,
-            avatar: 1,
-            links: 1
+            avatar: 1
+            // links: 1
           }
         }
       ),

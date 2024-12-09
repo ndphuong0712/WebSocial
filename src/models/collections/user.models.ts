@@ -13,7 +13,7 @@ class User {
   gender: Gender
   biography: string
   avatar: FileAttachmentType
-  links: string[]
+  // links: string[]
   createdAt: Date
   updatedAt: Date
   timeVerifyEmail?: Date
@@ -45,7 +45,7 @@ class User {
       id: '',
       type: FileType.Image
     }
-    this.links = []
+    // this.links = []
     this.createdAt = date
     this.updatedAt = date
     this.timeVerifyEmail = date
@@ -54,7 +54,9 @@ class User {
 
 type registerType = Pick<User, 'username' | 'email' | 'password' | 'fullname'> & { avatar?: string }
 type loginType = Pick<User, 'email' | 'password'>
-type updateUserType = Partial<Pick<User, 'username' | 'fullname' | 'dateOfBirth' | 'gender' | 'biography' | 'links'>>
+// type updateUserType = Partial<Pick<User, 'username' | 'fullname' | 'dateOfBirth' | 'gender' | 'biography' | 'links'>>
+type updateUserType = Partial<Pick<User, 'username' | 'fullname' | 'dateOfBirth' | 'gender' | 'biography'>>
+
 type changePasswordType = {
   userId: string
   currentPassword: string

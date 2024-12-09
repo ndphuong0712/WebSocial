@@ -11,7 +11,7 @@ const updateMeController = wrapRequestHandler(async (req: Request, res: Response
     'dateOfBirth',
     'fullname',
     'gender',
-    'links',
+    // 'links',
     'username'
   ])
   await userService.updateInfo({ userId, userInfo: data })

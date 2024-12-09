@@ -28,6 +28,13 @@ const handleSocket = (httpServer: ServerHttp) => {
       io.to(message.conversationId).emit('getNewNotification', message)
       io.to(message.conversationId).emit('getNewMessage', message)
     })
+
+    socket.on('newChatFriend', ({ friendId, conversationId }) => {
+      console.log(friendId)
+      if (onlineUsers[friendId]) {
+        onlineUsers[friendId].forEach(socketId => socket.to(socketId).emit('createNewChatFriend', conversationId))
+      }
+    })
   })
 }
 

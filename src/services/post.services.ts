@@ -574,7 +574,7 @@ const postService = {
             'user.dateOfBirth',
             'user.gender',
             'user.biography',
-            'user.links',
+            // 'user.links',
             'user.createdAt',
             'user.updatedAt'
           ]
@@ -673,7 +673,7 @@ const postService = {
             'user.dateOfBirth',
             'user.gender',
             'user.biography',
-            'user.links',
+            // 'user.links',
             'user.createdAt',
             'user.updatedAt'
           ]

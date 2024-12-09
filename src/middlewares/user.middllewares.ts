@@ -67,24 +67,24 @@ const updateMeValidator = validate(
         isLength: { options: { min: 0, max: 200 } },
         errorMessage: 'Biography must be a string and have a maximum length of 200',
         optional: true
-      },
-      links: {
-        isArray: { options: { min: 0, max: 5 } },
-        custom: {
-          options: (value: any[], { req }) => {
-            const regex =
-              /^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/i
-            for (let i of value) {
-              if (!regex.test(i)) {
-                return false
-              }
-            }
-            return true
-          }
-        },
-        errorMessage: 'Links must be an array of urls',
-        optional: true
       }
+      // links: {
+      //   isArray: { options: { min: 0, max: 5 } },
+      //   custom: {
+      //     options: (value: any[], { req }) => {
+      //       const regex =
+      //         /^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/i
+      //       for (let i of value) {
+      //         if (!regex.test(i)) {
+      //           return false
+      //         }
+      //       }
+      //       return true
+      //     }
+      //   },
+      //   errorMessage: 'Links must be an array of urls',
+      //   optional: true
+      // }
     },
     ['body']
   )

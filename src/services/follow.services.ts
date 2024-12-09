@@ -79,6 +79,7 @@ const followService = {
           $addFields: {
             userId: '$user._id',
             username: '$user.username',
+            fullname: '$user.fullname',
             avatar: '$user.avatar',
             followAt: '$createdAt',
             isFollow: {
@@ -99,6 +100,7 @@ const followService = {
             _id: 0,
             userId: 1,
             username: 1,
+            fullname: 1,
             avatar: 1,
             followAt: 1,
             isFollow: 1,
@@ -165,6 +167,7 @@ const followService = {
           $addFields: {
             userId: '$user._id',
             username: '$user.username',
+            fullname: '$user.fullname',
             avatar: '$user.avatar',
             followAt: '$createdAt',
             isFollow: {
@@ -185,6 +188,7 @@ const followService = {
             _id: 0,
             userId: 1,
             username: 1,
+            fullname: 1,
             avatar: 1,
             followAt: 1,
             isFollow: 1,
