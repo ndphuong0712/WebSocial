@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import Logo from "../assets/logo/LogoWebSocialWithText.png"
 import { useEffect, useState } from "react"
-import Loader from "../components/loader"
+import Loader from "../components/loader/Loader"
 import { verifyEmail } from "../services/auth.services"
 
 const VerifyEmail = () => {

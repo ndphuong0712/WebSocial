@@ -3,7 +3,7 @@ import "./ModalChangeAvatar.css"
 import { changeAvatar } from "../../services/user.services"
 import { useContext, useState } from "react"
 import { AuthContext } from "../../contexts/AuthProvider"
-import Loader from "../Loader"
+import Loader from "../loader/Loader"
 import { toast } from "react-toastify"
 
 const ModalChangeAvatar = ({ avatarFile, setAvatarFile, setUserInfo }) => {

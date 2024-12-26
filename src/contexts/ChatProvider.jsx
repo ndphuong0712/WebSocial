@@ -7,9 +7,6 @@ import { useParams } from "react-router-dom"
 import { getMessagesByConversation } from "../services/message.services"
 import { NotificationContext } from "./NotificationProvider"
 import { AuthContext } from "./AuthProvider"
-// import { NotificationContext } from "./NotificationProvider"
-
-// import Loader from "../components/Loader"
 
 const ChatContext = createContext()
 const ChatProvider = ({ children }) => {

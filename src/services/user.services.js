@@ -30,3 +30,12 @@ export const changeAvatar = async (file) => {
 export const changePassword = (dataBody) => {
   return axiosInstance.patch("/users/password", dataBody)
 }
+
+export const searchUsers = async ({ textSearch, isFullname, lastTime }) => {
+  const { data } = await axiosInstance.get(
+    `/users?search=${textSearch}${isFullname ? "&fullname" : ""}${
+      lastTime ? `&lastTime=${lastTime}` : ""
+    }`
+  )
+  return data
+}

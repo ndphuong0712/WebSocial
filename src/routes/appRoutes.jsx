@@ -15,6 +15,7 @@ import VerifyEmail from "../pages/VerifyEmail"
 import ResetPassword from "../pages/ResetPassword"
 import MainChat from "../pages/MainChat"
 import { ChatProvider } from "../contexts/ChatProvider"
+import PostPage from "../pages/PostPage"
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,7 @@ const router = createBrowserRouter([
               { path: "/", element: <Home /> },
               { path: "/search", element: <Search /> },
               { path: "/profile/:userId", element: <Profile /> },
+              { path: "/posts/:postId", element: <PostPage /> },
               {
                 path: "/chat",
                 element: (

@@ -3,7 +3,7 @@ import { Outlet, useLocation, useSearchParams } from "react-router-dom"
 import { getBasicInfo } from "../services/user.services"
 
 import { checkAccessToken } from "../services/auth.services"
-import Loader from "../components/Loader"
+import Loader from "../components/loader/Loader"
 
 const AuthContext = createContext()
 const AuthProvider = () => {

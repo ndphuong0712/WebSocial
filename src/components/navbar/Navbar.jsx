@@ -6,12 +6,15 @@ import { CiSquarePlus } from "react-icons/ci"
 import { Link, NavLink, useNavigate } from "react-router-dom"
 import { logoutUser } from "../../services/auth.services"
 import { useContext, useState } from "react"
-import Loader from "../Loader"
+import Loader from "../loader/Loader"
 import { AuthContext } from "../../contexts/AuthProvider"
+import ModalPost from "../modalPost/ModalPost"
 const Navbar = ({ notifications }) => {
   const navigate = useNavigate()
   const { user, setUserContext } = useContext(AuthContext)
   const [loading, setLoading] = useState(false)
+  const [showModalCreatePost, setShowModalCreatePost] = useState(false)
+
   const handleLogout = async () => {
     setLoading(true)
     await logoutUser({ token: localStorage.getItem("refreshToken") })
@@ -21,6 +24,15 @@ const Navbar = ({ notifications }) => {
     setUserContext()
     navigate("/login")
   }
+
+  const handleShowModalCreatePost = () => {
+    setShowModalCreatePost(true)
+  }
+
+  const handleCloseModalCreatePost = () => {
+    setShowModalCreatePost(false)
+  }
+
   return (
     <>
       <div className="nav_menu">
@@ -85,7 +97,8 @@ const Navbar = ({ notifications }) => {
                       flexDirection: "row",
                       fontWeight: 400,
                       cursor: "pointer"
-                    }}>
+                    }}
+                    onClick={handleShowModalCreatePost}>
                     <CiSquarePlus size={24} style={{ marginRight: 10 }} />
                     <span className="d-none d-lg-block">Tạo bài viết</span>
                   </div>
@@ -164,7 +177,12 @@ const Navbar = ({ notifications }) => {
             <IoSearchSharp size={24} color="black" />
           </NavLink>
           <span>
-            <CiSquarePlus size={24} color="black" />
+            <CiSquarePlus
+              size={24}
+              color="black"
+              style={{ cursor: "pointer" }}
+              onClick={handleShowModalCreatePost}
+            />
           </span>
           <NavLink to={"/chat"}>
             <IoIosSend size={24} color="black" />
@@ -178,6 +196,9 @@ const Navbar = ({ notifications }) => {
           )}
         </div>
       </div>
+      {showModalCreatePost && (
+        <ModalPost handleClose={handleCloseModalCreatePost} />
+      )}
       <Loader loading={loading} />
     </>
   )

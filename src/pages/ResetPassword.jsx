@@ -8,7 +8,7 @@ import {
 import Logo from "../assets/logo/LogoWebSocialWithText.png"
 import { Container } from "react-bootstrap"
 import { useState } from "react"
-import Loader from "../components/loader"
+import Loader from "../components/loader/Loader"
 import { passwordRegex } from "../utils/regex"
 import { resetPassword } from "../services/auth.services"
 

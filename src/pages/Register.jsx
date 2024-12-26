@@ -10,7 +10,7 @@ import {
   usernameRegex
 } from "../utils/regex"
 import { registerUser } from "../services/auth.services"
-import Loader from "../components/Loader"
+import Loader from "../components/loader/Loader"
 import getGoogleOAuthUrl from "../utils/getGoogleOAuthUrl"
 
 const Register = () => {

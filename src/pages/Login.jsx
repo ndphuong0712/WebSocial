@@ -5,7 +5,7 @@ import { FcGoogle } from "react-icons/fc"
 import { useContext, useState } from "react"
 import { loginUser } from "../services/auth.services"
 import { AuthContext } from "../contexts/AuthProvider"
-import Loader from "../components/Loader"
+import Loader from "../components/loader/Loader"
 import { emailRegex } from "../utils/regex"
 import getGoogleOAuthUrl from "../utils/getGoogleOAuthUrl"
 
@@ -85,7 +85,6 @@ const Login = () => {
           <input
             type="password"
             placeholder="Mật khẩu"
-            spellCheck={false}
             style={styles.input}
             value={password}
             onChange={(e) => setPassword(e.target.value)}

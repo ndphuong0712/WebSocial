@@ -750,13 +750,27 @@ button.log_btn:hover {
     max-width: 100%;
   }
 }
-.main_section .posts_container .post {
+.main_section .posts_container .post,
+.main_section .posts_container .post .share_post {
   font-size: 14px;
   margin-bottom: 15px;
   border-radius: 10px;
   padding: 0 10px;
   box-shadow: 0 0 2px black;
 }
+
+@media screen and (min-width: 700px) {
+  .main_section .posts_container .post {
+    width: 550px;
+  }
+}
+
+@media screen and (max-width: 699px) {
+  .main_section .posts_container {
+    width: 100%;
+  }
+}
+
 @media screen and (max-width: 498px) {
   .main_section .posts_container .post {
     width: 100%;
@@ -785,7 +799,7 @@ button.log_btn:hover {
   box-shadow: 0 0 2px black;
 }
 
-.main_section .posts_container .post .info .person p {
+.main_section .posts_container .post .info .person .username {
   color: rgb(38, 38, 38);
   font-size: 16px;
   font-weight: 600;
@@ -811,9 +825,10 @@ button.log_btn:hover {
 .main_section .posts_container .post .image {
   width: 100%;
 }
-.main_section .posts_container .post .image img {
+.main_section .posts_container .post .image img,
+.main_section .posts_container .post .image video {
   width: 100%;
-  border-radius: 5px;
+  /* border-radius: 5px; */
 }
 .main_section .posts_container .post .desc p {
   font-weight: 400;
@@ -821,6 +836,7 @@ button.log_btn:hover {
 }
 .main_section .posts_container .post .post_desc p {
   margin-top: 0;
+  white-space: pre-wrap;
 }
 .main_section .posts_container .post .desc a.bold {
   font-weight: 600;
@@ -1833,12 +1849,50 @@ button.log_btn:hover {
   max-width: 550px;
   width: 550px;
 }
+
+.search_container .type_search {
+  display: flex;
+  margin-top: 8px;
+  border-bottom: 2px black solid;
+}
+
+.search_container .type_search .type_item {
+  padding: 4px 8px;
+  cursor: pointer;
+  color: gray;
+  position: relative;
+}
+
+.search_container .type_search .type_item.active {
+  color: black;
+}
+
+.search_container .type_search .type_item.active::after {
+  content: "";
+  display: block;
+  width: 100%;
+  bottom: -2px;
+  left: 0;
+  height: 4px;
+  background-color: #4ab0f5;
+  position: absolute;
+}
+
+.search_container .type_search .type_item:hover {
+  background-color: #cecece;
+}
+
 .search_container input {
   width: 100%;
   padding: 5px 10px;
   border-radius: 5px;
 }
-.search_container .user_item {
+
+.search_container .users_container {
+  overflow-y: auto;
+  height: 80vh;
+}
+.search_container .users_container .user_item {
   display: flex;
   align-items: center;
   padding: 10px;
@@ -1857,6 +1911,7 @@ button.log_btn:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  color: #000;
 }
 
 .search_container .user_item .info .username {

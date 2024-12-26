@@ -5,7 +5,7 @@ import { IoIosCloseCircle } from "react-icons/io"
 import InputEmoji from "react-input-emoji"
 import { ChatContext } from "../../contexts/ChatProvider"
 import { sendMessage } from "../../services/message.services"
-import Loader from "../Loader"
+import Loader from "../loader/Loader"
 import { NotificationContext } from "../../contexts/NotificationProvider"
 
 const InputChat = () => {

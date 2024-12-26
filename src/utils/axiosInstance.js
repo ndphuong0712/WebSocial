@@ -22,7 +22,14 @@ axiosInstance.interceptors.response.use(
     return res.data
   },
   async (error) => {
-    if (error.response.status === 422) {
+    if (
+      error.response.status === 422 ||
+      (error.config.method === "get" &&
+        error.config.url.startsWith("/posts") &&
+        (error.response.status === 403 ||
+          error.response.status === 404 ||
+          error.response.status === 400))
+    ) {
       return Promise.reject(error.response.data)
     }
     if (
@@ -54,15 +61,22 @@ axiosInstance.interceptors.response.use(
 )
 
 const refreshToken = async () => {
-  isRefreshToken = true
-  const res = await axios.post(`${SERVER_URL}/auth/refreshToken`, {
-    token: localStorage.getItem("refreshToken")
-  })
-  localStorage.setItem("refreshToken", res.data.data.refreshToken)
-  localStorage.setItem("accessToken", res.data.data.accessToken)
-  await Promise.all(requestsToRefresh.map((cb) => cb()))
-  isRefreshToken = false
-  requestsToRefresh = []
+  try {
+    isRefreshToken = true
+    const res = await axios.post(`${SERVER_URL}/auth/refreshToken`, {
+      token: localStorage.getItem("refreshToken")
+    })
+    localStorage.setItem("refreshToken", res.data.data.refreshToken)
+    localStorage.setItem("accessToken", res.data.data.accessToken)
+    await Promise.all(requestsToRefresh.map((cb) => cb()))
+    isRefreshToken = false
+    requestsToRefresh = []
+  } catch (error) {
+    window.location.href = "/login"
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    return Promise.reject(error)
+  }
 }
 
 export default axiosInstance

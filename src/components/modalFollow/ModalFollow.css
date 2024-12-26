@@ -2,6 +2,7 @@
   position: absolute;
   inset: 0;
   padding: 50px;
+  z-index: 100;
 }
 
 .my_modal .container {
