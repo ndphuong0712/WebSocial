@@ -7,8 +7,8 @@ const createCommentController = wrapRequestHandler(async (req: Request, res: Res
   const postId = req.body.postId
   const originalCommentId = req.body.originalCommentId
   const content = req.body.content
-  await commentService.createComment({ userId, postId, originalCommentId, content })
-  res.json({ message: 'Create comment successfully' })
+  const comment = await commentService.createComment({ userId, postId, originalCommentId, content })
+  res.json({ message: 'Create comment successfully', data: comment })
 })
 
 const deleteCommentController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {

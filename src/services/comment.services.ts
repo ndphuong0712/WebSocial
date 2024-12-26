@@ -10,8 +10,10 @@ const commentService = {
     return database.comments.findOne({ _id: new ObjectId(commentId) })
   },
 
-  createComment(data: createCommentType) {
-    return database.comments.insertOne(new Comment(data))
+  async createComment(data: createCommentType) {
+    const comment = new Comment(data)
+    await database.comments.insertOne(comment)
+    return comment
   },
 
   deleteComment({ userId, commentId }: { userId: string; commentId: string }) {

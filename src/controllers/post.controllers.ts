@@ -18,8 +18,8 @@ const updatePostController = wrapRequestHandler(async (req: Request, res: Respon
   const postId = req.params.postId
   const { audience, content, deleteMedia } = req.body
   const files = req.files as Express.Multer.File[]
-  await postService.updatePost({ postId, userId, audience, content, deleteMedia, oldMedia, files })
-  res.json({ message: 'Update post successfully' })
+  const post = await postService.updatePost({ postId, userId, audience, content, deleteMedia, oldMedia, files })
+  res.json({ message: 'Update post successfully', data: post })
 })
 
 const getDetailPostController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -27,6 +27,13 @@ const getDetailPostController = wrapRequestHandler(async (req: Request, res: Res
   const postId = req.params.postId
   const post = await postService.getDetailPost({ userId, postId })
   res.json({ message: 'Get detail post successfully', data: post })
+})
+
+const getBasicInfoPostController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.tokenDecode?._id
+  const postId = req.params.postId
+  const post = await postService.getBasicInfoPost({ userId, postId })
+  res.json({ message: 'Get basic info post successfully', data: post })
 })
 
 const newsFeedController = wrapRequestHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -75,6 +82,7 @@ export {
   createPostController,
   updatePostController,
   getDetailPostController,
+  getBasicInfoPostController,
   newsFeedController,
   getPostsByUserController,
   getLikePostsByUserController,

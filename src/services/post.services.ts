@@ -49,10 +49,15 @@ const postService = {
     const updateObj: any = { media: newMedia, updatedAt: new Date() }
     if (audience !== undefined) updateObj.audience = audience
     if (content !== undefined) updateObj.content = content
-    await Promise.all([
-      database.posts.updateOne({ _id: new ObjectId(postId), userId: new ObjectId(userId) }, { $set: updateObj }),
+    const [result] = await Promise.all([
+      database.posts.findOneAndUpdate(
+        { _id: new ObjectId(postId), userId: new ObjectId(userId) },
+        { $set: updateObj },
+        { returnDocument: 'after' }
+      ),
       ...deleteMedia.map(id => deleteCloudinaryFile(id))
     ])
+    return result
   },
 
   async getDetailPost({ userId, postId }: { userId?: string; postId: string }) {
@@ -203,6 +208,91 @@ const postService = {
             isBookmark: 1,
             isFollow: 1
           }
+        }
+      ])
+      .toArray()
+    if (!post) {
+      throw new ErrorWithStatus({ status: HTTP_STATUS.NOT_FOUND, message: 'PostId not found' })
+    }
+    if (userId !== post?.user._id.toString() && post.audience !== Audience.Public) {
+      if (post.audience === Audience.Private || post.isFollow === false) {
+        throw new ErrorWithStatus({ status: HTTP_STATUS.FORBIDDEN, message: 'You cannot access this post' })
+      }
+    }
+    return post
+  },
+
+  async getBasicInfoPost({ userId, postId }: { userId?: string; postId: string }) {
+    const [post] = await database.posts
+      .aggregate([
+        {
+          $match: {
+            _id: new ObjectId(postId)
+          }
+        },
+        {
+          $lookup: {
+            from: 'user',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'userResult'
+          }
+        },
+        {
+          $unwind: {
+            path: '$userResult'
+          }
+        },
+        {
+          $lookup: {
+            from: 'follow',
+            let: {
+              userId: '$userId'
+            },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      {
+                        $eq: ['$followerId', new ObjectId(userId)]
+                      },
+                      {
+                        $eq: ['$followingId', '$$userId']
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'isFollow'
+          }
+        },
+        {
+          $addFields: {
+            isFollow: {
+              $cond: [
+                {
+                  $eq: [
+                    {
+                      $size: '$isFollow'
+                    },
+                    1
+                  ]
+                },
+                true,
+                false
+              ]
+            },
+            user: {
+              _id: '$userResult._id',
+              username: '$userResult.username',
+              avatar: '$userResult.avatar'
+            }
+          }
+        },
+        {
+          $unset: 'userResult'
         }
       ])
       .toArray()
@@ -479,10 +569,10 @@ const postService = {
           $match: { createdAt: { $lt: lastTime ?? new Date() } }
         },
         {
-          $limit: limit
+          $sort: { createdAt: -1 }
         },
         {
-          $sort: { createdAt: -1 }
+          $limit: limit
         }
       ])
       .toArray()
@@ -521,11 +611,7 @@ const postService = {
         },
         {
           $match: {
-            $or: [
-              { 'post.audience': 0 },
-              { 'post.audience': 1, isFollow: true },
-              { 'post.audience': 2, 'user._id': userIdObj }
-            ]
+            $or: [{ 'post.audience': 0 }, { 'post.audience': 1, isFollow: true }, { 'user._id': userIdObj }]
           }
         },
         {
@@ -553,6 +639,8 @@ const postService = {
             originalPostId: '$post.originalPostId',
             content: '$post.content',
             media: '$post.media',
+            createdAt: '$post.createdAt',
+            updatedAt: '$post.updatedAt',
             numberLikes: { $size: '$numberLikes' },
             numberComments: { $size: '$numberComments' },
             numberShares: { $size: '$numberShares' },
@@ -565,7 +653,6 @@ const postService = {
           $unset: [
             'userId',
             'postId',
-            'createdAt',
             'post',
             'user.email',
             'user.password',
@@ -605,7 +692,7 @@ const postService = {
             from: 'follow',
             localField: 'user._id',
             foreignField: 'followingId',
-            pipeline: [{ $match: { followerId: new ObjectId('67123b7af2ae020119ff20ca') } }],
+            pipeline: [{ $match: { followerId: userIdObj } }],
             as: 'isFollow'
           }
         },
@@ -620,11 +707,7 @@ const postService = {
         },
         {
           $match: {
-            $or: [
-              { 'post.audience': 0 },
-              { 'post.audience': 1, isFollow: true },
-              { 'post.audience': 2, 'user._id': new ObjectId('67123b7af2ae020119ff20ca') }
-            ]
+            $or: [{ 'post.audience': 0 }, { 'post.audience': 1, isFollow: true }, { 'user._id': userIdObj }]
           }
         },
         {
@@ -641,7 +724,7 @@ const postService = {
             from: 'like',
             localField: 'post._id',
             foreignField: 'postId',
-            pipeline: [{ $match: { userId: new ObjectId('67123b7af2ae020119ff20ca') } }],
+            pipeline: [{ $match: { userId: userIdObj } }],
             as: 'isLike'
           }
         },
@@ -651,6 +734,8 @@ const postService = {
             audience: '$post.audience',
             originalPostId: '$post.originalPostId',
             content: '$post.content',
+            createdAt: '$post.createdAt',
+            updatedAt: '$post.updatedAt',
             media: '$post.media',
             numberLikes: { $size: '$numberLikes' },
             numberComments: { $size: '$numberComments' },
@@ -664,7 +749,6 @@ const postService = {
           $unset: [
             'userId',
             'postId',
-            'createdAt',
             'post',
             'user.email',
             'user.password',

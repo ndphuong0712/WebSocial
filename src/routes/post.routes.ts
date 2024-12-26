@@ -1,6 +1,7 @@
 import {
   createPostController,
   deletePostController,
+  getBasicInfoPostController,
   getDetailPostController,
   getLBookmarkPostsByUserController,
   getLikePostsByUserController,
@@ -29,6 +30,7 @@ postRouter.get('/bookmarks', accessTokenValidator, paginationTimeValidator, getL
 postRouter.use(optionalAccessTokenValidator)
 postRouter.get('/newsFeed', paginationTimeValidator, newsFeedController)
 postRouter.get('/:postId', postIdParamsValidator, getDetailPostController)
+postRouter.get('/basicInfo/:postId', postIdParamsValidator, getBasicInfoPostController)
 postRouter.get('/user/:userId', userIdParamsValidator, paginationTimeValidator, getPostsByUserController)
 
 //Private

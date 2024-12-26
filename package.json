@@ -5,6 +5,7 @@
   "scripts": {
     "build": "rimraf ./dist && tsc && tsc-alias",
     "dev": "nodemon --exec ts-node ./src/index.ts",
+    "seedData": "ts-node ./src/seedData/seedData.ts",
     "start": "node ./dist/index.js"
   },
   "author": "",
@@ -24,6 +25,7 @@
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.3.0",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",

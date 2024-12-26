@@ -123,6 +123,7 @@ const userService = {
     const $match: any = { accountStatus: 1 }
     fullname !== undefined ? ($match.$text = { $search: search }) : ($match.username = new RegExp(search, 'i'))
     lastTime !== undefined ? ($match.createdAt = { $gt: lastTime }) : {}
+
     return database.users
       .aggregate([
         {

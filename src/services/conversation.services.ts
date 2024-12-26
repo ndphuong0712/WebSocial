@@ -41,13 +41,13 @@ const conversationService = {
     const conversation = await database.conversations.findOne({ _id: new ObjectId(conversationId) })
     if (conversation?.type === ConversationType.Personal) {
       const user = await database.users.findOne({ _id: new ObjectId(userId) })
-      conversation.name = user?.username as string
-      conversation.avatar = user?.avatar as FileAttachmentType
+      ;(conversation as any).name = user?.username as string
+      ;(conversation as any).avatar = user?.avatar as FileAttachmentType
     } else if (conversation?.type === ConversationType.Friend) {
       const friendId = conversation.participants.find(id => id.toString() !== userId)
       const friend = await database.users.findOne({ _id: new ObjectId(friendId) })
-      conversation.name = friend?.username as string
-      conversation.avatar = friend?.avatar as FileAttachmentType
+      ;(conversation as any).name = friend?.username as string
+      ;(conversation as any).avatar = friend?.avatar as FileAttachmentType
     }
     return conversation
   },

@@ -13,9 +13,10 @@ import { Db, MongoClient } from 'mongodb'
 
 class Database {
   private db: Db
+  private mongo: MongoClient
   constructor() {
-    const mongo = new MongoClient(ENV.MONGODB_CONNECTION_STRING)
-    this.db = mongo.db(ENV.DB_NAME)
+    this.mongo = new MongoClient(ENV.MONGODB_CONNECTION_STRING)
+    this.db = this.mongo.db(ENV.DB_NAME)
     this.createIndex()
   }
   async createIndex() {
@@ -25,6 +26,11 @@ class Database {
         this.users.createIndex({ fullname: 'text' }, { default_language: 'none' })
       ])
     }
+  }
+
+  async closeConnect() {
+    await this.mongo.close()
+    console.log('Close Connect MongoDb')
   }
 
   get users() {
