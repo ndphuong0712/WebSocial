@@ -19,6 +19,7 @@ const handleSocket = (httpServer: ServerHttp) => {
       onlineUsers[socket.handshake.auth.id] = onlineUsers[socket.handshake.auth.id].filter(
         socketId => socketId !== socket.id
       )
+      io.emit('getOnlineUsers', onlineUsers)
     })
     socket.on('joinRooms', (roomIds: string[]) => {
       roomIds.forEach(roomId => socket.join(roomId))
