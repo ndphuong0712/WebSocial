@@ -46,13 +46,23 @@ const ModalInfo = ({ isShowModal, setIsShowModal, userInfo, setUserInfo }) => {
     }
     if (check) {
       try {
-        await updateMe({
-          username: username.trim(),
-          fullname: fullname.trim(),
-          dateOfBirth,
-          gender,
-          biography: biography.trim()
-        })
+        console.log(user.username !== username.trim())
+        if (user.username !== username.trim()) {
+          await updateMe({
+            username: username.trim(),
+            fullname: fullname.trim(),
+            dateOfBirth: dateOfBirth ?? undefined,
+            gender,
+            biography: biography.trim()
+          })
+        } else {
+          await updateMe({
+            fullname: fullname.trim(),
+            dateOfBirth: dateOfBirth ?? undefined,
+            gender,
+            biography: biography.trim()
+          })
+        }
         const newUserInfo = Object.assign(
           { ...userInfo },
           {

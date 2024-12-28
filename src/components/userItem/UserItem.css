@@ -18,6 +18,12 @@
   flex-direction: column;
 }
 
+.user_item .info .username {
+  color: black;
+  font-weight: 600;
+  font-size: 16px;
+}
+
 .user_item .btn {
   margin: auto;
 }

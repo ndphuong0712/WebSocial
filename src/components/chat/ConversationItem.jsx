@@ -5,6 +5,7 @@ import { useContext } from "react"
 
 const ConversationItem = ({ conversation }) => {
   const { onlineUsers, notifications } = useContext(NotificationContext)
+  console.log(onlineUsers)
   return (
     <NavLink
       to={`/chat/${conversation._id}`}
@@ -17,9 +18,10 @@ const ConversationItem = ({ conversation }) => {
       }`}>
       <div className="avatar">
         <img src={conversation.avatar.url} alt="" />
-        {conversation.type === 1 && onlineUsers[conversation.friendId] && (
-          <span className="online" />
-        )}
+        {conversation.type === 1 &&
+          onlineUsers[conversation.friendId]?.length > 0 && (
+            <span className="online" />
+          )}
       </div>
       <div className="info">
         <div className="name">

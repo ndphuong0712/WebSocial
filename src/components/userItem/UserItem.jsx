@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import "./UserItem.css"
 import { followUser, unfollowUser } from "../../services/follow.services"
+import { Link } from "react-router-dom"
 
-const UserItem = ({ userInfo }) => {
+const UserItem = ({ userInfo, handleCloseModal }) => {
   const [follow, setFollow] = useState(userInfo.isFollow)
-  // console.log("Follow:", follow, userInfo.isFollow)
   const handleFollow = async () => {
     await followUser(userInfo.userId)
     setFollow(true)
@@ -15,15 +15,17 @@ const UserItem = ({ userInfo }) => {
     setFollow(false)
   }
 
-  useEffect(() => {
-    console.log("UserItem")
-  }, [])
-
   return (
     <div className="user_item">
       <img className="avatar" src={userInfo.avatar.url} alt="" />
       <div className="info">
-        <span>{userInfo.username}</span>
+        <Link
+          className="username"
+          to={`/profile/${userInfo.userId}`}
+          onClick={handleCloseModal}>
+          {userInfo.username}
+        </Link>
+
         <span>{userInfo.fullname}</span>
       </div>
       <div className="btn">

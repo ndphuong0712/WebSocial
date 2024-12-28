@@ -51,7 +51,11 @@ const ModalFollow = ({ type, setIsShowModal, userId }) => {
             </p>
           )}
           {users.map((user) => (
-            <UserItem key={user.userId} userInfo={user} />
+            <UserItem
+              key={user.userId}
+              userInfo={user}
+              handleCloseModal={() => setIsShowModal(false)}
+            />
           ))}
         </div>
       </div>
