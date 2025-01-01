@@ -59,13 +59,13 @@ const Profile = () => {
     let data
     if (postType === "like") {
       data = await getLikePostsByUser(_lastTime)
-      setLastTime(data[data.length - 1].likeAt)
+      setLastTime(data[data.length - 1]?.likeAt)
     } else if (postType === "bookmark") {
       data = await getBookmarkPostsByUser(_lastTime)
-      setLastTime(data[data.length - 1].bookmarkAt)
+      setLastTime(data[data.length - 1]?.bookmarkAt)
     } else {
       data = await getPostsByUser(userId, _lastTime)
-      setLastTime(data[data.length - 1].createdAt)
+      setLastTime(data[data.length - 1]?.createdAt)
     }
     if (data.length > 0) {
       setPosts([..._posts, ...data])
