@@ -2292,7 +2292,7 @@ button.log_btn:hover {
   background-color: #272626;
 }
 .chat-box .chat-content .message-container.received .avatar {
-  min-width: 32px;
+  width: 32px;
   height: 32px;
   padding: 2px;
   margin-right: 4px;
