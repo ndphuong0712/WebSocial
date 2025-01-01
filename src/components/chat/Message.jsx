@@ -22,12 +22,12 @@ const Message = ({ message, showAvatarName, showUnSeen }) => {
         title={formatTime(message.createdAt)}
         className={`message-container ${
           user._id === message.user._id ? "sent" : "received"
-        }`}>
+        } ${message.media.length > 0 ? "w70" : ""}`}>
         <div className="avatar">
           {showAvatarName && <img src={message.user.avatar.url} alt="" />}
         </div>
 
-        <div className="_message">
+        <div className={`_message ${message.media.length > 0 ? "flex1" : ""}`}>
           {showAvatarName && <span>{message.user.username}</span>}
           <div className="message">
             {message.media.length > 0 && (
