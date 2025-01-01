@@ -63,7 +63,7 @@ const userService = {
       { $set: { password: hashPassword(newPassword), updatedAt: new Date() } }
     )
     if (result.matchedCount === 0) {
-      throw new ErrorWithStatus({ status: HTTP_STATUS.UNAUTHORIZED, message: 'CurrentPassword is incorrect' })
+      throw new ErrorWithStatus({ status: HTTP_STATUS.UNPROCESSABLE_ENTITY, message: 'CurrentPassword is incorrect' })
     }
   },
 
