@@ -185,17 +185,18 @@ const Profile = () => {
                       setFollowType("follower")
                       setIsShowModalFollow(true)
                     }}>
-                    <span>{userInfo.numberFollowers}</span> followers
+                    <span>{userInfo.numberFollowers}</span> người theo dõi
                   </p>
                   <p
                     onClick={() => {
                       setFollowType("following")
                       setIsShowModalFollow(true)
                     }}>
+                    {"Đang theo dõi "}
                     <span onClick={() => setFollowType("following")}>
                       {userInfo.numberFollowings}
                     </span>{" "}
-                    following
+                    người
                   </p>
                 </div>
                 <p className="nick_name">{userInfo.fullname}</p>

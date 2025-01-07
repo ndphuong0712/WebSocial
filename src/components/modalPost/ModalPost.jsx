@@ -90,7 +90,11 @@ const ModalPost = ({
       })
       setLoading(false)
       handleClose()
-      toast.success("Tạo bài viết thành công")
+      if (type === "share") {
+        toast.success("Chia sẻ bài viết thành công")
+      } else {
+        toast.success("Tạo bài viết thành công")
+      }
     }
   }
 
